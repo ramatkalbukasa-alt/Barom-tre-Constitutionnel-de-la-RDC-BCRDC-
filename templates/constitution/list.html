@@ -27,7 +27,7 @@
           <li>
             <a href="/constitution/?theme={{ value }}{% if query %}&q={{ query }}{% endif %}"
               class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer {% if selected_theme == value %}bg-cta-light text-cta font-medium{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
-              {{ theme_icons|default_if_none:''|default:'' }}
+              <span class="w-2 h-2 rounded-full flex-shrink-0 {% if selected_theme == value %}bg-cta{% else %}bg-slate-300{% endif %}"></span>
               <span class="truncate">{{ label }}</span>
             </a>
           </li>

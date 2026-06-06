@@ -20,34 +20,65 @@
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-  <!-- Example questions -->
+  <!-- Frequently asked questions -->
   <div class="mb-8" x-data="{ selectedQ: '' }">
     <p class="text-sm font-medium text-slate-600 mb-3">Questions fréquentes :</p>
     <div class="flex flex-wrap gap-2">
-      {% for q in example_questions|default:"" %}
+      {% for q in faq_questions %}
       <button type="button"
         @click="document.getElementById('question-input').value = '{{ q }}'; selectedQ = '{{ q }}';"
-        class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white">
+        class="px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer bg-white"
+        :class="selectedQ === '{{ q }}' ? 'border-cta text-cta bg-cta-light' : 'border-slate-200 text-slate-700 hover:border-cta hover:text-cta'">
         {{ q }}
       </button>
       {% empty %}
       <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="document.getElementById('question-input').value = 'Que dit la Constitution sur le mandat présidentiel ?'">
+        onclick="setQuestion(this, 'Que dit la Constitution sur le mandat présidentiel ?')">
         Que dit la Constitution sur le mandat présidentiel ?
       </button>
       <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="document.getElementById('question-input').value = 'Quels sont les droits fondamentaux garantis ?'">
+        onclick="setQuestion(this, 'Quels sont les droits fondamentaux garantis par la Constitution ?')">
         Quels sont les droits fondamentaux garantis ?
       </button>
       <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="document.getElementById('question-input').value = 'Comment peut-on réviser la Constitution ?'">
+        onclick="setQuestion(this, 'Comment peut-on réviser la Constitution ?')">
         Comment peut-on réviser la Constitution ?
       </button>
       <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="document.getElementById('question-input').value = 'Quelles sont les attributions du Président de la République ?'">
+        onclick="setQuestion(this, 'Quelles sont les attributions du Président de la République ?')">
         Attributions du Président de la République ?
       </button>
       {% endfor %}
+    </div>
+
+    <!-- Debated articles section -->
+    <div class="mt-4">
+      <p class="text-sm font-medium text-slate-600 mb-2 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        Articles faisant débat :
+      </p>
+      <div class="flex flex-wrap gap-2">
+        <button type="button"
+          onclick="setQuestion(this, 'Que dit l\'article 5 sur la souveraineté nationale et le référendum constitutionnel ?')"
+          class="px-3 py-1.5 rounded-full text-sm border border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-400 transition-colors cursor-pointer bg-white font-medium">
+          Art. 5 — Souveraineté du peuple
+        </button>
+        <button type="button"
+          onclick="setQuestion(this, 'Que dit l\'article 4 sur les frontières de la RDC et leur inviolabilité ?')"
+          class="px-3 py-1.5 rounded-full text-sm border border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-400 transition-colors cursor-pointer bg-white font-medium">
+          Art. 4 — Frontières de la RDC
+        </button>
+        <button type="button"
+          onclick="setQuestion(this, 'Que dit l\'article 64 sur le droit de résistance à un régime inconstitutionnel ?')"
+          class="px-3 py-1.5 rounded-full text-sm border border-red-200 text-red-700 hover:bg-red-50 hover:border-red-400 transition-colors cursor-pointer bg-white font-medium">
+          Art. 64 — Droit de résistance
+        </button>
+        <button type="button"
+          onclick="setQuestion(this, 'Que dit l\'article 220 sur les dispositions intangibles de la Constitution ?')"
+          class="px-3 py-1.5 rounded-full text-sm border border-red-200 text-red-700 hover:bg-red-50 hover:border-red-400 transition-colors cursor-pointer bg-white font-medium">
+          Art. 220 — Dispositions intangibles
+        </button>
+      </div>
     </div>
   </div>
 
@@ -75,18 +106,15 @@
       <!-- Language selector -->
       <div class="flex items-center gap-4 mb-4">
         <span class="text-sm font-medium text-slate-600">Langue de réponse :</span>
-        <div class="flex gap-2">
-          {% for val, label in language_choices|default:"" %}
-          {% empty %}
+        <div class="flex gap-3">
           <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="radio" name="language" value="fr" checked class="text-cta" />
+            <input type="radio" name="language" value="fr" checked class="accent-cta" />
             <span class="text-sm">Français</span>
           </label>
           <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="radio" name="language" value="lingala" class="text-cta" />
+            <input type="radio" name="language" value="lingala" class="accent-cta" />
             <span class="text-sm">Lingala</span>
           </label>
-          {% endfor %}
         </div>
       </div>
 
@@ -117,4 +145,14 @@
     </p>
   </div>
 </div>
+
+<script>
+function setQuestion(btn, text) {
+  const ta = document.getElementById('question-input');
+  if (!ta) return;
+  ta.value = text;
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+  ta.focus();
+}
+</script>
 {% endblock %}

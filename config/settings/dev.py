@@ -8,6 +8,13 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "bcrdc-dev",
+    }
+}
+
 INTERNAL_IPS = ["127.0.0.1"]
 
 try:

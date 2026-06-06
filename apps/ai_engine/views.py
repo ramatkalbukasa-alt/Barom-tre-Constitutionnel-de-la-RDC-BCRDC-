@@ -1,18 +1,26 @@
 from django.shortcuts import render
-from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 from .rag import ask_constitution
 from .models import AIQuery
 
 
+FAQ_QUESTIONS = [
+    "Que dit la Constitution sur le mandat présidentiel ?",
+    "Quels sont les droits fondamentaux garantis par la Constitution ?",
+    "Comment peut-on réviser la Constitution ?",
+    "Quelles sont les attributions du Président de la République ?",
+    "Quels sont les pouvoirs du Parlement ?",
+    "Comment fonctionne la Cour Constitutionnelle ?",
+]
+
+
 @require_http_methods(["GET"])
 def ask_view(request):
-    return render(request, "ai_engine/ask.html")
+    return render(request, "ai_engine/ask.html", {"faq_questions": FAQ_QUESTIONS})
 
 
 @require_http_methods(["POST"])
-def ask_htmx(request):
+def ask_htmx(request):  # CSRF handled via {% csrf_token %} in form body
     question = request.POST.get("question", "").strip()
     language = request.POST.get("language", "fr")
 
