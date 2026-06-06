@@ -2,146 +2,136 @@
 {% block title %}Poser une question à l'IA constitutionnelle — BCRDC{% endblock %}
 
 {% block content %}
-<div class="bg-primary-900 text-white py-10">
+<div class="bg-[#121212] border-b-4 border-[#121212] py-12">
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-start gap-4">
-      <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style="background: rgba(217,119,6,0.3);">
-        <svg class="w-6 h-6" style="color: #FCD34D;" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-        </svg>
-      </div>
-      <div>
-        <h1 class="font-heading text-3xl font-bold mb-1">Assistant constitutionnel IA</h1>
-        <p class="text-slate-300">Posez vos questions sur la Constitution de la RDC. Réponses neutres, citées et multilingues.</p>
-      </div>
-    </div>
+    <p class="text-[#F0C020] text-xs font-black uppercase tracking-[0.3em] mb-2">Moteur RAG · Multilingue</p>
+    <h1 class="font-black text-white text-4xl sm:text-5xl uppercase tracking-tight leading-none mb-3">Assistant IA</h1>
+    <p class="text-gray-400 font-medium">Posez vos questions sur la Constitution. Réponses neutres, citées et vérifiables.</p>
   </div>
 </div>
 
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-  <!-- Frequently asked questions -->
+  <!-- Bauhaus FAQ chips -->
   <div class="mb-8" x-data="{ selectedQ: '' }">
-    <p class="text-sm font-medium text-slate-600 mb-3">Questions fréquentes :</p>
-    <div class="flex flex-wrap gap-2">
-      {% for q in faq_questions %}
-      <button type="button"
-        @click="document.getElementById('question-input').value = '{{ q }}'; selectedQ = '{{ q }}';"
-        class="px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer bg-white"
-        :class="selectedQ === '{{ q }}' ? 'border-cta text-cta bg-cta-light' : 'border-slate-200 text-slate-700 hover:border-cta hover:text-cta'">
-        {{ q }}
-      </button>
-      {% empty %}
-      <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="setQuestion(this, 'Que dit la Constitution sur le mandat présidentiel ?')">
-        Que dit la Constitution sur le mandat présidentiel ?
-      </button>
-      <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="setQuestion(this, 'Quels sont les droits fondamentaux garantis par la Constitution ?')">
-        Quels sont les droits fondamentaux garantis ?
-      </button>
-      <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="setQuestion(this, 'Comment peut-on réviser la Constitution ?')">
-        Comment peut-on réviser la Constitution ?
-      </button>
-      <button type="button" class="px-3 py-1.5 rounded-full text-sm border border-slate-200 text-slate-700 hover:border-cta hover:text-cta transition-colors cursor-pointer bg-white"
-        onclick="setQuestion(this, 'Quelles sont les attributions du Président de la République ?')">
-        Attributions du Président de la République ?
-      </button>
-      {% endfor %}
+    <!-- Frequent questions -->
+    <div class="mb-5">
+      <p class="text-xs font-black uppercase tracking-[0.25em] text-[#1040C0] mb-3">Questions fréquentes</p>
+      <div class="flex flex-wrap gap-2">
+        {% for q in faq_questions %}
+        <button type="button"
+          @click="document.getElementById('question-input').value = '{{ q }}'; selectedQ = '{{ q }}';"
+          class="px-3 py-2 border-2 text-xs font-bold uppercase tracking-wide transition-colors cursor-pointer"
+          :class="selectedQ === '{{ q }}' ? 'border-[#1040C0] bg-[#1040C0] text-white' : 'border-[#121212] bg-white text-[#121212] hover:bg-[#1040C0] hover:text-white hover:border-[#1040C0]'">
+          {{ q }}
+        </button>
+        {% empty %}
+        <button type="button" class="px-3 py-2 border-2 border-[#121212] bg-white text-[#121212] text-xs font-bold uppercase tracking-wide hover:bg-[#1040C0] hover:text-white hover:border-[#1040C0] transition-colors cursor-pointer"
+          onclick="setQuestion(this, 'Que dit la Constitution sur le mandat présidentiel ?')">
+          Mandat présidentiel
+        </button>
+        <button type="button" class="px-3 py-2 border-2 border-[#121212] bg-white text-[#121212] text-xs font-bold uppercase tracking-wide hover:bg-[#1040C0] hover:text-white hover:border-[#1040C0] transition-colors cursor-pointer"
+          onclick="setQuestion(this, 'Quels sont les droits fondamentaux garantis par la Constitution ?')">
+          Droits fondamentaux
+        </button>
+        <button type="button" class="px-3 py-2 border-2 border-[#121212] bg-white text-[#121212] text-xs font-bold uppercase tracking-wide hover:bg-[#1040C0] hover:text-white hover:border-[#1040C0] transition-colors cursor-pointer"
+          onclick="setQuestion(this, 'Comment peut-on réviser la Constitution ?')">
+          Révision constitutionnelle
+        </button>
+        <button type="button" class="px-3 py-2 border-2 border-[#121212] bg-white text-[#121212] text-xs font-bold uppercase tracking-wide hover:bg-[#1040C0] hover:text-white hover:border-[#1040C0] transition-colors cursor-pointer"
+          onclick="setQuestion(this, 'Quelles sont les attributions du Président de la République ?')">
+          Attributions du Président
+        </button>
+        {% endfor %}
+      </div>
     </div>
-
-    <!-- Debated articles section -->
-    <div class="mt-4">
-      <p class="text-sm font-medium text-slate-600 mb-2 flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-        Articles faisant débat :
+    <!-- Debated articles -->
+    <div>
+      <p class="text-xs font-black uppercase tracking-[0.25em] text-[#D02020] mb-3 flex items-center gap-2">
+        <span class="w-2 h-2 bg-[#D02020] animate-pulse"></span>Articles faisant débat
       </p>
       <div class="flex flex-wrap gap-2">
         <button type="button"
-          onclick="setQuestion(this, 'Que dit l\'article 5 sur la souveraineté nationale et le référendum constitutionnel ?')"
-          class="px-3 py-1.5 rounded-full text-sm border border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-400 transition-colors cursor-pointer bg-white font-medium">
-          Art. 5 — Souveraineté du peuple
+          onclick="setQuestion(this, 'Que dit l\'article 5 sur la souveraineté nationale et le référendum ?')"
+          class="px-3 py-2 border-2 border-[#F0C020] bg-[#F0C020] text-[#121212] text-xs font-black uppercase tracking-wide hover:bg-[#121212] hover:text-[#F0C020] transition-colors cursor-pointer">
+          Art. 5 — Souveraineté
         </button>
         <button type="button"
-          onclick="setQuestion(this, 'Que dit l\'article 4 sur les frontières de la RDC et leur inviolabilité ?')"
-          class="px-3 py-1.5 rounded-full text-sm border border-amber-200 text-amber-700 hover:bg-amber-50 hover:border-amber-400 transition-colors cursor-pointer bg-white font-medium">
-          Art. 4 — Frontières de la RDC
+          onclick="setQuestion(this, 'Que dit l\'article 4 sur les frontières de la RDC ?')"
+          class="px-3 py-2 border-2 border-[#F0C020] bg-[#F0C020] text-[#121212] text-xs font-black uppercase tracking-wide hover:bg-[#121212] hover:text-[#F0C020] transition-colors cursor-pointer">
+          Art. 4 — Frontières
         </button>
         <button type="button"
           onclick="setQuestion(this, 'Que dit l\'article 64 sur le droit de résistance à un régime inconstitutionnel ?')"
-          class="px-3 py-1.5 rounded-full text-sm border border-red-200 text-red-700 hover:bg-red-50 hover:border-red-400 transition-colors cursor-pointer bg-white font-medium">
-          Art. 64 — Droit de résistance
+          class="px-3 py-2 border-2 border-[#D02020] bg-[#D02020] text-white text-xs font-black uppercase tracking-wide hover:bg-[#121212] hover:border-[#121212] transition-colors cursor-pointer">
+          Art. 64 — Résistance
         </button>
         <button type="button"
-          onclick="setQuestion(this, 'Que dit l\'article 220 sur les dispositions intangibles de la Constitution ?')"
-          class="px-3 py-1.5 rounded-full text-sm border border-red-200 text-red-700 hover:bg-red-50 hover:border-red-400 transition-colors cursor-pointer bg-white font-medium">
-          Art. 220 — Dispositions intangibles
+          onclick="setQuestion(this, 'Que dit l\'article 220 sur les dispositions intangibles ?')"
+          class="px-3 py-2 border-2 border-[#D02020] bg-[#D02020] text-white text-xs font-black uppercase tracking-wide hover:bg-[#121212] hover:border-[#121212] transition-colors cursor-pointer">
+          Art. 220 — Intangibilité
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Question form -->
-  <div class="card p-6 mb-6">
-    <form hx-post="/ia/repondre/" hx-target="#answer-section" hx-swap="innerHTML"
-      hx-indicator="#ask-spinner" x-data="{ question: '', loading: false }"
-      @htmx:before-request="loading = true" @htmx:after-request="loading = false">
-      {% csrf_token %}
+  <!-- Bauhaus Question form -->
+  <div class="border-2 border-[#121212] shadow-[6px_6px_0px_0px_#121212] bg-white mb-8">
+    <div class="bg-[#F0C020] px-5 py-3 border-b-2 border-[#121212]">
+      <p class="font-black text-[#121212] text-sm uppercase tracking-wide">Posez votre question</p>
+    </div>
+    <div class="p-5">
+      <form hx-post="/ia/repondre/" hx-target="#answer-section" hx-swap="innerHTML"
+        hx-indicator="#ask-spinner" x-data="{ question: '', loading: false }"
+        @htmx:before-request="loading = true" @htmx:after-request="loading = false">
+        {% csrf_token %}
 
-      <label for="question-input" class="block font-heading font-semibold text-primary-900 mb-3">
-        Votre question sur la Constitution
-      </label>
-      <div class="flex gap-3">
-        <div class="flex-1 relative">
-          <textarea id="question-input" name="question" rows="3" x-model="question"
-            placeholder="Ex: Que dit la Constitution sur la liberté de presse ?"
-            class="form-textarea resize-none"
-            maxlength="500"
-            aria-describedby="question-help"></textarea>
-        </div>
-      </div>
-      <p id="question-help" class="text-xs text-slate-400 mt-2 mb-4">Maximum 500 caractères. L'IA s'appuie uniquement sur le texte constitutionnel.</p>
+        <label for="question-input" class="block text-xs font-black uppercase tracking-wide text-[#121212] mb-2">
+          Votre question sur la Constitution
+        </label>
+        <textarea id="question-input" name="question" rows="3" x-model="question"
+          placeholder="Ex : Que dit la Constitution sur la liberté de presse ?"
+          class="form-input resize-none mb-2"
+          maxlength="500"
+          aria-describedby="question-help"></textarea>
+        <p id="question-help" class="text-xs text-[#121212]/50 font-medium mb-4">Max 500 caractères. L'IA cite uniquement le texte constitutionnel.</p>
 
-      <!-- Language selector -->
-      <div class="flex items-center gap-4 mb-4">
-        <span class="text-sm font-medium text-slate-600">Langue de réponse :</span>
-        <div class="flex gap-3">
-          <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="radio" name="language" value="fr" checked class="accent-cta" />
-            <span class="text-sm">Français</span>
+        <!-- Language selector -->
+        <div class="flex items-center gap-3 mb-5">
+          <span class="text-xs font-black uppercase tracking-wide text-[#121212]/60">Langue :</span>
+          <label class="flex items-center gap-1.5 cursor-pointer border-2 border-[#121212] px-3 py-1.5 has-[:checked]:bg-[#121212] has-[:checked]:text-white transition-colors">
+            <input type="radio" name="language" value="fr" checked class="sr-only" />
+            <span class="text-xs font-black uppercase">Français</span>
           </label>
-          <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="radio" name="language" value="lingala" class="accent-cta" />
-            <span class="text-sm">Lingala</span>
+          <label class="flex items-center gap-1.5 cursor-pointer border-2 border-[#121212] px-3 py-1.5 has-[:checked]:bg-[#121212] has-[:checked]:text-white transition-colors">
+            <input type="radio" name="language" value="lingala" class="sr-only" />
+            <span class="text-xs font-black uppercase">Lingala</span>
           </label>
         </div>
-      </div>
 
-      <button type="submit" class="btn py-2.5 px-6" style="background: #D97706; color: white;"
-        :disabled="question.trim().length < 5" :class="{ 'opacity-50 cursor-not-allowed': question.trim().length < 5 }">
-        <span id="ask-spinner" class="htmx-indicator flex items-center gap-2" style="display:none;">
-          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-          Analyse en cours…
-        </span>
-        <span class="flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          Analyser
-        </span>
-      </button>
-    </form>
+        <div class="flex items-center gap-4">
+          <button type="submit" class="btn btn-black px-8 py-3"
+            :disabled="question.trim().length < 5" :class="{ 'opacity-40 cursor-not-allowed': question.trim().length < 5 }">
+            <span id="ask-spinner" class="htmx-indicator flex items-center gap-2" style="display:none;">
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              Analyse…
+            </span>
+            <span>Analyser →</span>
+          </button>
+          <p class="text-xs text-[#121212]/40 font-medium" x-show="question.length > 0 && question.trim().length < 5">Min. 5 caractères</p>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Answer area -->
   <div id="answer-section" aria-live="polite"></div>
 
   <!-- Disclaimer -->
-  <div class="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-    <p class="text-xs text-amber-800 leading-relaxed">
-      <strong>Avertissement :</strong> Les explications fournies par l'IA sont à titre informatif uniquement et ne constituent pas un avis juridique officiel.
-      L'IA cite toujours les articles sources. En cas de doute, consultez la version officielle publiée au Journal Officiel.
+  <div class="mt-8 border-l-4 border-[#F0C020] bg-[#FFF9C4] border-2 border-[#121212] p-4">
+    <p class="text-xs text-[#121212]/70 font-medium leading-relaxed">
+      <strong class="font-black uppercase">Avertissement :</strong> Les explications sont à titre informatif uniquement, sans valeur juridique officielle.
+      L'IA cite toujours les articles sources. En cas de doute, consultez le Journal Officiel du 5 février 2011.
     </p>
   </div>
 </div>

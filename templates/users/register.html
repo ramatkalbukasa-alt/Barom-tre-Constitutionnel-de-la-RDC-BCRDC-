@@ -2,74 +2,90 @@
 {% block title %}Participer — BCRDC{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
-  <div class="w-full max-w-md">
+<div class="min-h-[calc(100vh-68px)] grid grid-cols-1 lg:grid-cols-2">
 
-    <!-- Progress indicator -->
-    <div class="flex items-center gap-2 mb-8" aria-label="Étape 1 sur 3">
-      <div class="flex-1 flex items-center gap-2">
-        <span class="w-8 h-8 rounded-full bg-cta text-white flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0" aria-current="step">1</span>
-        <span class="text-sm font-medium text-cta">Téléphone</span>
-      </div>
-      <div class="flex-1 h-px bg-slate-200"></div>
-      <div class="flex-1 flex items-center gap-2">
-        <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0">2</span>
-        <span class="text-sm text-slate-400">Vérification</span>
-      </div>
-      <div class="flex-1 h-px bg-slate-200"></div>
-      <div class="flex-1 flex items-center gap-2">
-        <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0">3</span>
-        <span class="text-sm text-slate-400">Profil</span>
-      </div>
-    </div>
-
-    <div class="card p-8">
-      <div class="text-center mb-6">
-        <div class="w-14 h-14 rounded-full bg-cta-light flex items-center justify-center mx-auto mb-4">
-          <svg class="w-7 h-7 text-cta" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-          </svg>
+  <!-- Left: Black geometric panel -->
+  <div class="bg-[#121212] px-8 sm:px-12 py-16 flex flex-col justify-between relative overflow-hidden">
+    <div class="absolute inset-0 dot-grid opacity-20" aria-hidden="true"></div>
+    <div class="relative">
+      <!-- Step indicators -->
+      <div class="flex items-center gap-0 mb-12" aria-label="Progression">
+        <div class="flex items-center">
+          <div class="w-9 h-9 bg-[#F0C020] border-2 border-[#F0C020] flex items-center justify-center" aria-current="step">
+            <span class="font-black text-[#121212] text-sm">1</span>
+          </div>
+          <span class="ml-2 text-[#F0C020] text-xs font-black uppercase tracking-wider">Téléphone</span>
         </div>
-        <h1 class="font-heading text-2xl font-bold text-primary-900 mb-1">Votre numéro de téléphone</h1>
-        <p class="text-slate-500 text-sm">Vous recevrez un code de vérification par SMS.</p>
+        <div class="w-8 h-0.5 bg-white/20 mx-2"></div>
+        <div class="flex items-center">
+          <div class="w-9 h-9 border-2 border-white/20 flex items-center justify-center">
+            <span class="font-black text-white/30 text-sm">2</span>
+          </div>
+          <span class="ml-2 text-white/30 text-xs font-black uppercase tracking-wider hidden sm:block">Code</span>
+        </div>
+        <div class="w-8 h-0.5 bg-white/20 mx-2"></div>
+        <div class="flex items-center">
+          <div class="w-9 h-9 border-2 border-white/20 flex items-center justify-center">
+            <span class="font-black text-white/30 text-sm">3</span>
+          </div>
+          <span class="ml-2 text-white/30 text-xs font-black uppercase tracking-wider hidden sm:block">Profil</span>
+        </div>
       </div>
 
-      <form method="post" novalidate x-data="{ loading: false }" @submit="loading = true">
-        {% csrf_token %}
-        <div class="mb-5">
-          <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">
-            {{ form.phone_number.label }}
-          </label>
-          {{ form.phone_number }}
-          {% if form.phone_number.help_text %}
-          <p class="mt-1.5 text-xs text-slate-500">{{ form.phone_number.help_text }}</p>
-          {% endif %}
-          {% for error in form.phone_number.errors %}
-          <p class="mt-1.5 text-xs text-danger flex items-center gap-1" role="alert">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-            {{ error }}
-          </p>
-          {% endfor %}
-        </div>
-
-        <button type="submit" class="btn btn-primary w-full py-3" :disabled="loading" :class="{ 'opacity-60 cursor-not-allowed': loading }">
-          <span x-show="!loading">Recevoir le code SMS</span>
-          <span x-show="loading" class="flex items-center gap-2">
-            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-            Envoi en cours…
-          </span>
-        </button>
-      </form>
-
-      <p class="mt-5 text-xs text-center text-slate-500 leading-relaxed">
-        Votre numéro est converti en empreinte cryptographique. Aucun numéro n'est stocké en clair.
+      <h1 class="font-black text-white text-4xl sm:text-5xl uppercase tracking-tight leading-none mb-4">
+        Entrez dans<br>
+        <span class="text-[#F0C020]">le débat.</span>
+      </h1>
+      <p class="text-gray-400 text-base leading-relaxed max-w-sm">
+        Votre numéro de téléphone est converti en hash SHA-256. Il n'est jamais stocké en clair.
       </p>
     </div>
+    <!-- Geometric shapes -->
+    <div class="relative flex gap-2 mt-8" aria-hidden="true">
+      <div class="w-5 h-5 rounded-full bg-[#D02020]"></div>
+      <div class="w-5 h-5 bg-[#1040C0]"></div>
+      <div class="w-0 h-0" style="border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:17px solid #F0C020"></div>
+    </div>
+  </div>
 
-    <p class="mt-4 text-center text-sm text-slate-500">
-      Vous avez déjà participé ?
-      <a href="/consultation/tableau-de-bord/" class="text-cta hover:underline font-medium cursor-pointer">Voir les résultats</a>
-    </p>
+  <!-- Right: Form panel -->
+  <div class="bg-[#F0F0F0] flex items-center justify-center px-6 py-16">
+    <div class="w-full max-w-sm">
+      <div class="border-2 border-[#121212] shadow-[6px_6px_0px_0px_#121212] bg-white p-8">
+        <div class="mb-6">
+          <p class="text-xs font-black uppercase tracking-[0.2em] text-[#1040C0] mb-1">Étape 1</p>
+          <h2 class="font-black text-2xl uppercase tracking-tight">Numéro de téléphone</h2>
+          <p class="text-[#121212]/60 text-sm mt-1">Vous recevrez un code de vérification par SMS.</p>
+        </div>
+
+        <form method="post" novalidate x-data="{ loading: false }" @submit="loading = true">
+          {% csrf_token %}
+          <div class="mb-5">
+            <label for="{{ form.phone_number.id_for_label }}" class="block text-xs font-black uppercase tracking-wide text-[#121212] mb-2">
+              {{ form.phone_number.label }}
+            </label>
+            {{ form.phone_number }}
+            {% if form.phone_number.help_text %}
+            <p class="mt-1.5 text-xs text-[#121212]/50 font-medium">{{ form.phone_number.help_text }}</p>
+            {% endif %}
+            {% for error in form.phone_number.errors %}
+            <p class="mt-2 text-xs text-[#D02020] font-bold uppercase tracking-wide" role="alert">{{ error }}</p>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-black w-full py-3" :disabled="loading" :class="{ 'opacity-50 cursor-not-allowed': loading }">
+            <span x-show="!loading">Recevoir le code SMS</span>
+            <span x-show="loading" class="flex items-center gap-2">
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              Envoi…
+            </span>
+          </button>
+        </form>
+      </div>
+      <p class="mt-4 text-center text-sm text-[#121212]/50 font-medium">
+        Déjà participé ?
+        <a href="/consultation/tableau-de-bord/" class="text-[#1040C0] font-bold hover:underline">Voir les résultats</a>
+      </p>
+    </div>
   </div>
 </div>
 {% endblock %}

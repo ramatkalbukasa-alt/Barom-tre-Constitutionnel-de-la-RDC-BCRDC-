@@ -1,169 +1,194 @@
 {% extends "base.html" %}
 
-{% block title %}Baromètre Constitutionnel RDC — Votre voix compte{% endblock %}
+{% block title %}BCRDC — Baromètre Constitutionnel de la RDC{% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="relative bg-primary-900 text-white overflow-hidden">
-  <!-- Background decoration -->
-  <div class="absolute inset-0 opacity-5" aria-hidden="true">
-    <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-gold translate-x-1/3 -translate-y-1/3"></div>
-    <div class="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-cta translate-x-[-30%] translate-y-1/3"></div>
-  </div>
+<!-- ═══ BAUHAUS HERO ═══ -->
+<section class="border-b-4 border-[#121212]" aria-labelledby="hero-heading">
+  <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[540px]">
 
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      <div>
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6 text-sm">
-          <span class="w-2 h-2 rounded-full bg-gold animate-pulse" aria-hidden="true"></span>
-          <span>Consultation citoyenne ouverte</span>
+    <!-- Left: Black panel with text -->
+    <div class="bg-[#121212] px-8 sm:px-12 py-16 flex flex-col justify-center relative overflow-hidden">
+      <!-- Dot grid pattern -->
+      <div class="absolute inset-0 dot-grid opacity-30" aria-hidden="true"></div>
+      <div class="relative">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="w-3 h-3 bg-[#F0C020]"></span>
+          <span class="text-[#F0C020] text-xs font-black uppercase tracking-[0.25em]">Consultation citoyenne ouverte</span>
         </div>
-
-        <h1 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-6">
-          La Constitution de la RDC vous appartient.
-          <span class="text-gold-DEFAULT block mt-1" style="color: #D97706;">Faites-vous entendre.</span>
+        <h1 id="hero-heading" class="font-black text-white text-4xl sm:text-5xl lg:text-6xl uppercase leading-[0.95] tracking-tight mb-6">
+          La Constitution<br>
+          de la RDC<br>
+          <span class="text-[#F0C020]">vous appartient.</span>
         </h1>
-
-        <p class="text-lg text-slate-300 leading-relaxed mb-8 max-w-lg">
-          Lisez, comprenez et donnez votre avis sur la Constitution congolaise — de manière structurée, anonyme et vérifiable.
+        <p class="text-gray-400 text-base sm:text-lg leading-relaxed mb-10 max-w-md">
+          Lisez, comprenez et donnez votre avis — de manière structurée, anonyme et vérifiable.
         </p>
-
         <div class="flex flex-col sm:flex-row gap-4">
-          <a href="/participer/" class="btn btn-gold text-base px-6 py-3">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Participer à la consultation
-          </a>
-          <a href="/constitution/" class="btn btn-secondary text-base px-6 py-3" style="background: rgba(255,255,255,0.1); color: white; border: 1.5px solid rgba(255,255,255,0.2);">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            Lire la Constitution
-          </a>
+          <a href="/participer/" class="btn btn-yel text-base">Participer maintenant</a>
+          <a href="/constitution/" class="btn btn-white text-base">Lire la Constitution</a>
         </div>
       </div>
+    </div>
 
-      <!-- Stats card -->
-      <div class="card p-6 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm"
+    <!-- Right: Blue panel with geometric composition -->
+    <div class="bg-[#1040C0] relative overflow-hidden flex items-center justify-center min-h-[320px] lg:min-h-0">
+      <!-- Geometric shapes -->
+      <div class="absolute top-8 right-8 w-32 h-32 rounded-full border-4 border-white opacity-20" aria-hidden="true"></div>
+      <div class="absolute bottom-8 left-8 w-24 h-24 border-4 border-[#F0C020] rotate-45 opacity-40" aria-hidden="true"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border-4 border-white opacity-10" aria-hidden="true"></div>
+      <!-- Live stats via HTMX -->
+      <div class="relative z-10 w-full px-8"
         hx-get="/consultation/stats/" hx-trigger="load" hx-swap="outerHTML">
-        <div class="animate-pulse space-y-4">
-          <div class="h-4 bg-white/10 rounded w-1/2"></div>
-          <div class="h-8 bg-white/10 rounded w-3/4"></div>
-          <div class="space-y-2">
-            <div class="h-3 bg-white/10 rounded"></div>
-            <div class="h-3 bg-white/10 rounded w-5/6"></div>
-          </div>
+        <div class="text-center">
+          <div class="text-white/60 text-sm font-bold uppercase tracking-widest mb-3">Résultats en direct</div>
+          <div class="text-white font-black text-6xl mb-2">—</div>
+          <div class="text-white/60 text-sm">Chargement…</div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Three pillars -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16" aria-labelledby="pillars-heading">
-  <h2 id="pillars-heading" class="font-heading text-2xl font-bold text-center text-primary-900 mb-12">Comment fonctionne BCRDC ?</h2>
+<!-- ═══ BAUHAUS STATS BAR — Yellow section ═══ -->
+<section class="bg-[#F0C020] border-b-4 border-[#121212] py-8" aria-label="Comment ça fonctionne">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-3 divide-y-2 sm:divide-y-0 sm:divide-x-2 divide-[#121212]">
+      <div class="flex items-center gap-5 px-6 py-4 first:pl-0 last:pr-0">
+        <div class="w-10 h-10 bg-[#121212] flex items-center justify-center flex-shrink-0">
+          <span class="text-[#F0C020] font-black text-lg">1</span>
+        </div>
+        <div>
+          <p class="font-black text-[#121212] uppercase tracking-wide text-sm">Lisez</p>
+          <p class="text-[#121212]/70 text-xs font-medium">228 articles constitutionnels structurés</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-5 px-6 py-4">
+        <div class="w-10 h-10 bg-[#121212] flex items-center justify-center flex-shrink-0">
+          <span class="text-[#F0C020] font-black text-lg">2</span>
+        </div>
+        <div>
+          <p class="font-black text-[#121212] uppercase tracking-wide text-sm">Comprenez</p>
+          <p class="text-[#121212]/70 text-xs font-medium">Assistant IA neutre et multilingue</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-5 px-6 py-4">
+        <div class="w-10 h-10 bg-[#121212] flex items-center justify-center flex-shrink-0">
+          <span class="text-[#F0C020] font-black text-lg">3</span>
+        </div>
+        <div>
+          <p class="font-black text-[#121212] uppercase tracking-wide text-sm">Votez</p>
+          <p class="text-[#121212]/70 text-xs font-medium">Un vote vérifié par OTP SMS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THREE PILLARS — White cards ═══ -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" aria-labelledby="pillars-heading">
+  <div class="mb-12">
+    <p class="text-xs font-black uppercase tracking-[0.3em] text-[#1040C0] mb-2">Fonctionnement</p>
+    <h2 id="pillars-heading" class="font-black text-4xl sm:text-5xl uppercase tracking-tight text-[#121212]">Comment ça marche ?</h2>
+  </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Pillar 1 -->
-    <div class="card p-6 hover:shadow-card-hover transition-shadow cursor-default">
-      <div class="w-12 h-12 rounded-xl bg-cta-light flex items-center justify-center mb-4">
-        <svg class="w-6 h-6 text-cta" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
+    <!-- Card 1 -->
+    <div class="card p-8 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-8 h-8 bg-[#1040C0]" aria-hidden="true"></div>
+      <div class="w-12 h-12 bg-[#1040C0] flex items-center justify-center mb-6">
+        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
       </div>
-      <h3 class="font-heading font-semibold text-lg mb-2">Lisez la Constitution</h3>
-      <p class="text-slate-600 text-sm leading-relaxed">232 articles structurés, consultables par thème et recherchables par mot-clé. Comprendre avant de débattre.</p>
-      <a href="/constitution/" class="inline-flex items-center gap-1 mt-4 text-cta text-sm font-medium hover:underline cursor-pointer">
-        Explorer <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
+      <h3 class="font-black text-xl uppercase tracking-tight mb-3">Lisez la Constitution</h3>
+      <p class="text-[#121212]/70 text-sm leading-relaxed mb-6">228 articles structurés, consultables par thème. Comprendre le texte avant de débattre.</p>
+      <a href="/constitution/" class="btn btn-blue text-xs px-4 py-2">Explorer →</a>
     </div>
 
-    <!-- Pillar 2 -->
-    <div class="card p-6 hover:shadow-card-hover transition-shadow cursor-default">
-      <div class="w-12 h-12 rounded-xl bg-gold-light flex items-center justify-center mb-4">
-        <svg class="w-6 h-6" style="color: #D97706;" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-        </svg>
+    <!-- Card 2 -->
+    <div class="card p-8 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-8 h-8 rounded-full bg-[#F0C020]" aria-hidden="true"></div>
+      <div class="w-12 h-12 bg-[#F0C020] border-2 border-[#121212] flex items-center justify-center mb-6">
+        <svg class="w-6 h-6 text-[#121212]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
       </div>
-      <h3 class="font-heading font-semibold text-lg mb-2">Posez vos questions à l'IA</h3>
-      <p class="text-slate-600 text-sm leading-relaxed">Notre moteur IA explique les articles de manière simple et neutre. Toujours avec la citation de l'article source.</p>
-      <a href="/ia/" class="inline-flex items-center gap-1 mt-4 text-sm font-medium hover:underline cursor-pointer" style="color: #D97706;">
-        Essayer <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
+      <h3 class="font-black text-xl uppercase tracking-tight mb-3">Interrogez l'IA</h3>
+      <p class="text-[#121212]/70 text-sm leading-relaxed mb-6">Moteur RAG citant les articles sources. Réponses en français et lingala.</p>
+      <a href="/ia/" class="btn btn-yel text-xs px-4 py-2">Poser une question →</a>
     </div>
 
-    <!-- Pillar 3 -->
-    <div class="card p-6 hover:shadow-card-hover transition-shadow cursor-default">
-      <div class="w-12 h-12 rounded-xl bg-success-light flex items-center justify-center mb-4">
-        <svg class="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+    <!-- Card 3 -->
+    <div class="card p-8 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-0 h-0" style="border-left:16px solid transparent;border-right:0;border-top:0;border-bottom:16px solid #D02020" aria-hidden="true"></div>
+      <div class="w-12 h-12 bg-[#D02020] flex items-center justify-center mb-6">
+        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
-      <h3 class="font-heading font-semibold text-lg mb-2">Votez et justifiez</h3>
-      <p class="text-slate-600 text-sm leading-relaxed">Un vote par citoyen, vérifié par OTP SMS. Vous pouvez citer un article pour appuyer votre position.</p>
-      <a href="/participer/" class="inline-flex items-center gap-1 mt-4 text-success text-sm font-medium hover:underline cursor-pointer">
-        Participer <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
+      <h3 class="font-black text-xl uppercase tracking-tight mb-3">Votez et justifiez</h3>
+      <p class="text-[#121212]/70 text-sm leading-relaxed mb-6">Un vote par citoyen, vérifié OTP. Citez un article pour appuyer votre position.</p>
+      <a href="/participer/" class="btn btn-red text-xs px-4 py-2">Participer →</a>
     </div>
   </div>
 </section>
 
-<!-- Three Choices Explainer -->
-<section class="bg-slate-50 border-y border-slate-200 py-16" aria-labelledby="choices-heading">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-10">
-      <h2 id="choices-heading" class="font-heading text-2xl font-bold text-primary-900 mb-3">La question de la consultation</h2>
-      <p class="text-slate-600 max-w-xl mx-auto">Quelle est votre position sur l'avenir de la Constitution de la RDC ?</p>
+<!-- ═══ THREE CHOICES — Color blocks ═══ -->
+<section class="border-y-4 border-[#121212]" aria-labelledby="choices-heading">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="mb-10 text-center">
+      <p class="text-xs font-black uppercase tracking-[0.3em] text-[#D02020] mb-2">La question centrale</p>
+      <h2 id="choices-heading" class="font-black text-3xl sm:text-4xl uppercase tracking-tight">Quelle est votre position ?</h2>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-      <div class="card p-5 border-l-4" style="border-left-color: #16A34A;">
-        <h3 class="font-heading font-semibold text-base mb-2" style="color: #16A34A;">Maintien</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">La Constitution actuelle doit être maintenue telle quelle. Elle garantit les équilibres fondamentaux.</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-2 border-[#121212]">
+      <!-- Maintien -->
+      <div class="bg-[#1040C0] p-8 border-r-2 border-[#121212] flex flex-col">
+        <div class="w-6 h-6 rounded-full bg-white mb-6" aria-hidden="true"></div>
+        <h3 class="font-black text-white text-2xl uppercase tracking-tight mb-3">Maintien</h3>
+        <p class="text-white/80 text-sm leading-relaxed flex-1">La Constitution actuelle garantit les équilibres fondamentaux et doit être maintenue telle quelle.</p>
+        <div class="mt-6 badge bg-white/20 text-white border-white/40">Art. 1 à 232</div>
       </div>
-      <div class="card p-5 border-l-4" style="border-left-color: #D97706;">
-        <h3 class="font-heading font-semibold text-base mb-2" style="color: #D97706;">Révision partielle</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">Certains articles méritent d'être révisés, dans le respect des procédures constitutionnelles.</p>
+      <!-- Révision -->
+      <div class="bg-[#F0C020] p-8 border-r-2 border-[#121212] flex flex-col">
+        <div class="w-6 h-6 bg-[#121212] mb-6" aria-hidden="true"></div>
+        <h3 class="font-black text-[#121212] text-2xl uppercase tracking-tight mb-3">Révision</h3>
+        <p class="text-[#121212]/80 text-sm leading-relaxed flex-1">Certains articles méritent d'être révisés, dans le respect des procédures constitutionnelles (Art. 218).</p>
+        <div class="mt-6 badge bg-[#121212]/20 text-[#121212] border-[#121212]/30">Art. 218–220</div>
       </div>
-      <div class="card p-5 border-l-4" style="border-left-color: #DC2626;">
-        <h3 class="font-heading font-semibold text-base mb-2" style="color: #DC2626;">Changement total</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">Une nouvelle Constitution est nécessaire pour répondre aux besoins actuels du peuple congolais.</p>
+      <!-- Changement -->
+      <div class="bg-[#D02020] p-8 flex flex-col">
+        <div class="w-0 h-0 mb-6" style="border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:21px solid white" aria-hidden="true"></div>
+        <h3 class="font-black text-white text-2xl uppercase tracking-tight mb-3">Changement</h3>
+        <p class="text-white/80 text-sm leading-relaxed flex-1">Une nouvelle Constitution est nécessaire pour répondre aux besoins actuels du peuple congolais.</p>
+        <div class="mt-6 badge bg-white/20 text-white border-white/40">Art. 64, Art. 5</div>
       </div>
     </div>
-
     <div class="text-center mt-8">
-      <a href="/participer/" class="btn btn-primary px-8 py-3 text-base">
-        Exprimer ma position
-      </a>
+      <a href="/participer/" class="btn btn-black text-base px-10">Exprimer ma position</a>
     </div>
   </div>
 </section>
 
-<!-- Privacy assurance -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14" aria-labelledby="privacy-heading">
-  <div class="card p-8 bg-gradient-to-br from-slate-50 to-white flex flex-col md:flex-row items-start gap-6">
-    <div class="w-14 h-14 rounded-full bg-cta-light flex items-center justify-center flex-shrink-0">
-      <svg class="w-7 h-7 text-cta" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-      </svg>
-    </div>
-    <div>
-      <h2 id="privacy-heading" class="font-heading text-xl font-bold text-primary-900 mb-3">Votre vie privée est protégée</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-slate-600">
-        <div>
-          <strong class="block text-primary-900 mb-1">Numéro anonymisé</strong>
-          Votre numéro de téléphone est converti en empreinte cryptographique (SHA-256). Aucun numéro n'est stocké.
+<!-- ═══ PRIVACY — Red section ═══ -->
+<section class="bg-[#D02020] border-b-4 border-[#121212] py-16" aria-labelledby="privacy-heading">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <p class="text-xs font-black uppercase tracking-[0.3em] text-[#F0C020] mb-3">Confidentialité</p>
+        <h2 id="privacy-heading" class="font-black text-3xl sm:text-4xl text-white uppercase tracking-tight mb-6">Votre vie privée est protégée.</h2>
+        <p class="text-white/80 text-base leading-relaxed">Aucun numéro de téléphone n'est stocké. Votre identité ne peut jamais être retrouvée à partir des données de vote.</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white/10 border-2 border-white/30 p-5">
+          <div class="w-8 h-8 rounded-full bg-[#F0C020] mb-3" aria-hidden="true"></div>
+          <p class="font-black text-white text-sm uppercase tracking-wide mb-1">SHA-256</p>
+          <p class="text-white/70 text-xs">Numéro converti en hash cryptographique</p>
         </div>
-        <div>
-          <strong class="block text-primary-900 mb-1">Un vote par personne</strong>
-          La vérification OTP garantit un vote unique sans créer de compte ni stocker de documents.
+        <div class="bg-white/10 border-2 border-white/30 p-5">
+          <div class="w-8 h-8 bg-[#F0C020] mb-3" aria-hidden="true"></div>
+          <p class="font-black text-white text-sm uppercase tracking-wide mb-1">1 vote / personne</p>
+          <p class="text-white/70 text-xs">Vérification OTP sans création de compte</p>
         </div>
-        <div>
-          <strong class="block text-primary-900 mb-1">Données agrégées</strong>
-          Seules les statistiques globales sont publiées. Aucune donnée individuelle n'est exposée.
+        <div class="bg-white/10 border-2 border-white/30 p-5">
+          <div class="w-0 h-0 mb-3" style="border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:28px solid #F0C020" aria-hidden="true"></div>
+          <p class="font-black text-white text-sm uppercase tracking-wide mb-1">Agrégé</p>
+          <p class="text-white/70 text-xs">Seules les statistiques globales sont publiées</p>
         </div>
       </div>
     </div>

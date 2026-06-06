@@ -2,63 +2,70 @@
 {% block title %}Merci pour votre participation — BCRDC{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
-  <div class="w-full max-w-lg text-center">
-    <div class="card p-10">
-      <div class="w-20 h-20 rounded-full bg-success-light flex items-center justify-center mx-auto mb-6">
-        <svg class="w-10 h-10 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+<div class="min-h-[calc(100vh-68px)] bg-[#F0F0F0] flex items-center justify-center px-4 py-16">
+  <div class="w-full max-w-lg">
+
+    <!-- Bauhaus success card -->
+    <div class="border-2 border-[#121212] shadow-[8px_8px_0px_0px_#121212] overflow-hidden">
+      <!-- Yellow header -->
+      <div class="bg-[#F0C020] border-b-4 border-[#121212] px-8 py-10 text-center relative overflow-hidden">
+        <div class="absolute top-4 left-4 w-8 h-8 rounded-full bg-[#D02020] opacity-40" aria-hidden="true"></div>
+        <div class="absolute bottom-4 right-4 w-8 h-8 bg-[#1040C0] opacity-40" aria-hidden="true"></div>
+        <div class="w-16 h-16 bg-[#121212] flex items-center justify-center mx-auto mb-5">
+          <svg class="w-8 h-8 text-[#F0C020]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h1 class="font-black text-[#121212] text-3xl uppercase tracking-tight leading-none mb-3">Merci !</h1>
+        <p class="text-[#121212]/70 font-medium text-base">
+          Votre voix a été enregistrée de manière anonyme et sécurisée.
+        </p>
       </div>
 
-      <h1 class="font-heading text-3xl font-bold text-primary-900 mb-3">Merci pour votre participation !</h1>
-      <p class="text-slate-600 leading-relaxed mb-8">
-        Votre voix a été enregistrée de manière anonyme et sécurisée. Elle contribue à mesurer l'opinion citoyenne sur la Constitution de la RDC.
-      </p>
-
+      <!-- Stats section -->
       {% if stats.total %}
-      <div class="bg-slate-50 rounded-xl p-5 mb-8">
-        <p class="text-sm text-slate-500 mb-3 font-medium">Résultats actuels — {{ stats.total }} participant{{ stats.total|pluralize }}</p>
-        <div class="space-y-3">
-          <!-- Maintien -->
+      <div class="bg-white border-b-2 border-[#121212] p-6">
+        <p class="text-xs font-black uppercase tracking-[0.25em] text-[#121212]/50 mb-4">
+          Résultats actuels — {{ stats.total }} participant{{ stats.total|pluralize }}
+        </p>
+        <div class="space-y-4">
           <div>
-            <div class="flex justify-between text-sm mb-1">
-              <span class="font-medium" style="color: #16A34A;">Maintien</span>
-              <span class="text-slate-600">{{ stats.maintien_pct }}%</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="font-black text-xs uppercase tracking-wide text-[#1040C0]">Maintien</span>
+              <span class="font-black text-base text-[#121212]">{{ stats.maintien_pct }}%</span>
             </div>
-            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-              <div class="h-2.5 rounded-full transition-all duration-700" style="width: {{ stats.maintien_pct }}%; background: #16A34A;"></div>
+            <div class="w-full bg-[#E0E0E0] h-3 border border-[#121212]">
+              <div class="h-full bg-[#1040C0] transition-all duration-700" style="width: {{ stats.maintien_pct }}%"></div>
             </div>
           </div>
-          <!-- Révision -->
           <div>
-            <div class="flex justify-between text-sm mb-1">
-              <span class="font-medium" style="color: #D97706;">Révision</span>
-              <span class="text-slate-600">{{ stats.revision_pct }}%</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="font-black text-xs uppercase tracking-wide text-[#121212]">Révision</span>
+              <span class="font-black text-base text-[#121212]">{{ stats.revision_pct }}%</span>
             </div>
-            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-              <div class="h-2.5 rounded-full transition-all duration-700" style="width: {{ stats.revision_pct }}%; background: #D97706;"></div>
+            <div class="w-full bg-[#E0E0E0] h-3 border border-[#121212]">
+              <div class="h-full bg-[#F0C020] transition-all duration-700" style="width: {{ stats.revision_pct }}%"></div>
             </div>
           </div>
-          <!-- Changement -->
           <div>
-            <div class="flex justify-between text-sm mb-1">
-              <span class="font-medium" style="color: #DC2626;">Changement</span>
-              <span class="text-slate-600">{{ stats.changement_pct }}%</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="font-black text-xs uppercase tracking-wide text-[#D02020]">Changement</span>
+              <span class="font-black text-base text-[#121212]">{{ stats.changement_pct }}%</span>
             </div>
-            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-              <div class="h-2.5 rounded-full transition-all duration-700" style="width: {{ stats.changement_pct }}%; background: #DC2626;"></div>
+            <div class="w-full bg-[#E0E0E0] h-3 border border-[#121212]">
+              <div class="h-full bg-[#D02020] transition-all duration-700" style="width: {{ stats.changement_pct }}%"></div>
             </div>
           </div>
         </div>
       </div>
       {% endif %}
 
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <a href="/consultation/tableau-de-bord/" class="btn btn-primary px-6">
-          Voir le tableau de bord complet
+      <!-- Actions -->
+      <div class="bg-[#F0F0F0] p-6 flex flex-col sm:flex-row gap-3">
+        <a href="/consultation/tableau-de-bord/" class="btn btn-black flex-1 text-center py-3">
+          Tableau de bord
         </a>
-        <a href="/constitution/" class="btn btn-secondary px-6">
+        <a href="/constitution/" class="btn btn-blue flex-1 text-center py-3">
           Lire la Constitution
         </a>
       </div>

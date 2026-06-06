@@ -1,65 +1,59 @@
 {% if error %}
-<div class="card p-5 border border-red-200 bg-red-50" role="alert">
-  <div class="flex items-start gap-3">
-    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-    </svg>
-    <p class="text-red-700 text-sm">{{ error }}</p>
-  </div>
+<div class="border-2 border-[#121212] shadow-[4px_4px_0px_0px_#121212] bg-[#D02020] p-5" role="alert">
+  <p class="font-black text-white text-sm uppercase tracking-wide">{{ error }}</p>
 </div>
 
 {% elif result %}
-<div class="card p-6 border border-amber-100">
-  <!-- Question echo -->
-  <div class="flex items-start gap-3 pb-4 mb-5 border-b border-slate-100">
-    <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-500 text-xs font-semibold">Q</div>
-    <p class="text-slate-700 text-sm leading-relaxed pt-1">{{ question }}</p>
+<div class="border-2 border-[#121212] shadow-[6px_6px_0px_0px_#121212] overflow-hidden">
+  <!-- Question bar -->
+  <div class="bg-[#121212] px-5 py-4 flex items-start gap-3">
+    <div class="w-7 h-7 bg-[#F0C020] flex items-center justify-center flex-shrink-0">
+      <span class="font-black text-[#121212] text-xs">Q</span>
+    </div>
+    <p class="text-white text-sm leading-relaxed font-medium pt-0.5">{{ question }}</p>
   </div>
 
-  <!-- AI Answer -->
-  <div class="flex items-start gap-3">
-    <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-white text-xs font-semibold" style="background: #D97706;">IA</div>
-    <div class="flex-1 min-w-0">
-
-      <!-- FR Response -->
-      <div class="mb-4">
-        <span class="inline-flex items-center gap-1 text-xs font-medium text-slate-500 mb-2">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
-          Français
-        </span>
-        <p class="text-base text-primary-900 leading-relaxed">{{ result.fr }}</p>
+  <!-- AI Answer body -->
+  <div class="bg-white">
+    <div class="flex items-start gap-3 p-5 border-b-2 border-[#E0E0E0]">
+      <div class="w-7 h-7 bg-[#1040C0] flex items-center justify-center flex-shrink-0">
+        <span class="font-black text-white text-xs">IA</span>
       </div>
-
-      {% if result.lingala %}
-      <!-- Lingala Response -->
-      <div class="mb-4 pt-4 border-t border-slate-100">
-        <span class="inline-flex items-center gap-1 text-xs font-medium text-slate-500 mb-2">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
-          Lingala
-        </span>
-        <p class="text-base text-primary-900 leading-relaxed italic">{{ result.lingala }}</p>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-black uppercase tracking-wide text-[#1040C0] mb-2">Français</p>
+        <p class="text-base text-[#121212] leading-relaxed">{{ result.fr }}</p>
       </div>
-      {% endif %}
+    </div>
 
-      <!-- Articles cited -->
-      {% if result.articles_cites %}
-      <div class="mt-4 pt-4 border-t border-slate-100">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Articles constitutionnels utilisés</p>
-        <div class="flex flex-wrap gap-2">
-          {% for num in result.articles_cites %}
-          <a href="/constitution/article/{{ num }}/"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-cta-light text-cta hover:bg-blue-200 transition-colors cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-            Art. {{ num }}
-          </a>
-          {% endfor %}
-        </div>
+    {% if result.lingala %}
+    <div class="flex items-start gap-3 p-5 border-b-2 border-[#E0E0E0] bg-[#F0F0F0]">
+      <div class="w-7 h-7 bg-[#F0C020] border-2 border-[#121212] flex items-center justify-center flex-shrink-0">
+        <span class="font-black text-[#121212] text-xs">LG</span>
       </div>
-      {% endif %}
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-black uppercase tracking-wide text-[#121212]/60 mb-2">Lingala</p>
+        <p class="text-base text-[#121212] leading-relaxed italic">{{ result.lingala }}</p>
+      </div>
+    </div>
+    {% endif %}
 
-      <!-- Disclaimer -->
-      <p class="mt-4 text-xs text-slate-400 leading-relaxed">
-        {{ result.avertissement|default:"Cette explication est informative et ne constitue pas un avis juridique." }}
+    {% if result.articles_cites %}
+    <div class="p-5 border-b-2 border-[#E0E0E0]">
+      <p class="text-xs font-black uppercase tracking-[0.25em] text-[#121212]/50 mb-3">Sources constitutionnelles</p>
+      <div class="flex flex-wrap gap-2">
+        {% for num in result.articles_cites %}
+        <a href="/constitution/article/{{ num }}/"
+          class="btn btn-blue text-xs px-3 py-1.5 shadow-[2px_2px_0px_0px_#121212]">
+          Art. {{ num }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="px-5 py-3 bg-[#FFF9C4] border-l-4 border-[#F0C020]">
+      <p class="text-xs text-[#121212]/60 font-medium leading-relaxed">
+        {{ result.avertissement|default:"Cette explication est informative et ne constitue pas un avis juridique officiel." }}
       </p>
     </div>
   </div>
