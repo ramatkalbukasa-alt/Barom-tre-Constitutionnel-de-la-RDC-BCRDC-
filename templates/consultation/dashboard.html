@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord — Résultats de la consultation{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="bg-primary-900 text-white py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="font-heading text-3xl font-bold mb-1">Tableau de bord</h1>
+        <p class="text-slate-300">Résultats de la consultation citoyenne en temps réel</p>
+      </div>
+      <div class="flex items-center gap-2 bg-white/10 rounded-lg px-4 py-2 text-sm">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse" aria-hidden="true"></span>
+        <span>{{ stats.total }} participant{{ stats.total|pluralize }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="dashboard()" x-init="initCharts()">
+
+  <!-- Global Results -->
+  <section aria-labelledby="global-results" class="mb-10">
+    <h2 id="global-results" class="font-heading text-xl font-bold text-primary-900 mb-5">Résultats globaux</h2>
+
+    {% if stats.total == 0 %}
+    <div class="card p-12 text-center">
+      <svg class="w-12 h-12 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      <p class="text-slate-500 font-medium mb-2">Aucun vote encore enregistré</p>
+      <p class="text-slate-400 text-sm mb-6">Soyez le premier à participer !</p>
+      <a href="/participer/" class="btn btn-gold px-6">Participer à la consultation</a>
+    </div>
+    {% else %}
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+      <!-- Maintien -->
+      <div class="card p-6 border-t-4" style="border-top-color: #16A34A;">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">Maintien</p>
+            <p class="font-heading text-3xl font-bold" style="color: #16A34A;">{{ stats.maintien_pct }}%</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: #DCFCE7;">
+            <svg class="w-5 h-5" style="color: #16A34A;" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden" role="progressbar" aria-valuenow="{{ stats.maintien_pct }}" aria-valuemin="0" aria-valuemax="100">
+          <div class="h-2 rounded-full" style="width: {{ stats.maintien_pct }}%; background: #16A34A;"></div>
+        </div>
+        <p class="mt-2 text-xs text-slate-500">{{ stats.maintien }} vote{{ stats.maintien|pluralize }}</p>
+      </div>
+
+      <!-- Révision -->
+      <div class="card p-6 border-t-4" style="border-top-color: #D97706;">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">Révision partielle</p>
+            <p class="font-heading text-3xl font-bold" style="color: #D97706;">{{ stats.revision_pct }}%</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: #FEF3C7;">
+            <svg class="w-5 h-5" style="color: #D97706;" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </div>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden" role="progressbar" aria-valuenow="{{ stats.revision_pct }}" aria-valuemin="0" aria-valuemax="100">
+          <div class="h-2 rounded-full" style="width: {{ stats.revision_pct }}%; background: #D97706;"></div>
+        </div>
+        <p class="mt-2 text-xs text-slate-500">{{ stats.revision }} vote{{ stats.revision|pluralize }}</p>
+      </div>
+
+      <!-- Changement -->
+      <div class="card p-6 border-t-4" style="border-top-color: #DC2626;">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <p class="text-sm font-medium text-slate-500 mb-1">Changement total</p>
+            <p class="font-heading text-3xl font-bold" style="color: #DC2626;">{{ stats.changement_pct }}%</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: #FEE2E2;">
+            <svg class="w-5 h-5" style="color: #DC2626;" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden" role="progressbar" aria-valuenow="{{ stats.changement_pct }}" aria-valuemin="0" aria-valuemax="100">
+          <div class="h-2 rounded-full" style="width: {{ stats.changement_pct }}%; background: #DC2626;"></div>
+        </div>
+        <p class="mt-2 text-xs text-slate-500">{{ stats.changement }} vote{{ stats.changement|pluralize }}</p>
+      </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="card p-6">
+        <h3 class="font-heading font-semibold text-base text-primary-900 mb-4">Répartition générale</h3>
+        <div class="relative h-64">
+          <canvas id="donutChart" aria-label="Graphique circulaire des résultats" role="img"></canvas>
+        </div>
+      </div>
+      <div class="card p-6">
+        <h3 class="font-heading font-semibold text-base text-primary-900 mb-4">Type d'argument (IA)</h3>
+        <div class="relative h-64">
+          <canvas id="argumentChart" aria-label="Graphique des types d'arguments" role="img"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- By location -->
+    {% if stats.by_location %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="card p-6">
+        <h3 class="font-heading font-semibold text-base text-primary-900 mb-4">National vs Diaspora</h3>
+        <div class="space-y-3">
+          {% for loc, count in stats.by_location.items %}
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-slate-600 w-28 truncate">{% if loc == 'national' %}RDC (national){% elif loc == 'diaspora' %}Diaspora{% else %}{{ loc }}{% endif %}</span>
+            <div class="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="h-3 rounded-full bg-cta" style="width: {% widthratio count stats.total 100 %}%"></div>
+            </div>
+            <span class="text-sm font-medium text-primary-900 w-12 text-right">{{ count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="font-heading font-semibold text-base text-primary-900 mb-4">Par genre</h3>
+        <div class="space-y-3">
+          {% for gender, count in stats.by_gender.items %}
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-slate-600 w-28">{% if gender == 'M' %}Homme{% elif gender == 'F' %}Femme{% else %}Autre{% endif %}</span>
+            <div class="flex-1 bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="h-3 rounded-full" style="background: #0369A1; width: {% widthratio count stats.total 100 %}%"></div>
+            </div>
+            <span class="text-sm font-medium text-primary-900 w-12 text-right">{{ count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent votes -->
+    {% if recent_votes %}
+    <div class="card overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100">
+        <h3 class="font-heading font-semibold text-base text-primary-900">Dernières participations</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Justifications anonymisées</p>
+      </div>
+      <ul role="list" class="divide-y divide-slate-100">
+        {% for vote in recent_votes %}
+        <li class="px-6 py-4">
+          <div class="flex items-start gap-4">
+            <span class="flex-shrink-0 mt-0.5 px-2.5 py-1 rounded-full text-xs font-semibold
+              {% if vote.choice == 'maintien' %}bg-green-100 text-green-700
+              {% elif vote.choice == 'revision' %}bg-amber-100 text-amber-700
+              {% else %}bg-red-100 text-red-700{% endif %}">
+              {{ vote.get_choice_display|truncatechars:15 }}
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-slate-700 leading-relaxed">{{ vote.justification|truncatechars:180 }}</p>
+              <p class="text-xs text-slate-400 mt-1">
+                {{ vote.user.get_location_type_display }}
+                {% if vote.user.province %} · {{ vote.user.get_province_display }}{% endif %}
+                {% if vote.argument_category != 'non_classe' %} · {{ vote.get_argument_category_display }}{% endif %}
+              </p>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% endif %}{# end if stats.total #}
+  </section>
+
+  <div class="text-center pt-4">
+    <a href="/participer/" class="btn btn-gold px-8 py-3 text-base">
+      Participer à la consultation
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const statsData = {{ stats_json|safe }};
+
+  function dashboard() {
+    return {
+      initCharts() {
+        if (statsData.total === 0) return;
+
+        // Donut chart
+        const donutCtx = document.getElementById('donutChart');
+        if (donutCtx) {
+          new Chart(donutCtx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Maintien', 'Révision', 'Changement'],
+              datasets: [{
+                data: [statsData.maintien, statsData.revision, statsData.changement],
+                backgroundColor: ['#16A34A', '#D97706', '#DC2626'],
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverOffset: 6,
+              }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom', labels: { padding: 16, font: { family: 'Source Sans 3', size: 13 } } },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toFixed(0)} votes` } }
+              },
+              cutout: '65%',
+            }
+          });
+        }
+
+        // Argument chart
+        const argCtx = document.getElementById('argumentChart');
+        if (argCtx && statsData.by_argument) {
+          const argLabels = {
+            'juridique': 'Juridique', 'politique': 'Politique',
+            'emotionnel': 'Émotionnel', 'socioeconomique': 'Socio-économique', 'non_classe': 'Non classé'
+          };
+          const keys = Object.keys(statsData.by_argument);
+          const vals = keys.map(k => statsData.by_argument[k]);
+          new Chart(argCtx, {
+            type: 'bar',
+            data: {
+              labels: keys.map(k => argLabels[k] || k),
+              datasets: [{
+                data: vals,
+                backgroundColor: ['#0369A1', '#7C3AED', '#D97706', '#16A34A', '#94A3B8'],
+                borderRadius: 6,
+                borderSkipped: false,
+              }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { family: 'Source Sans 3' } } },
+                y: { grid: { display: false }, ticks: { font: { family: 'Source Sans 3', size: 12 } } }
+              }
+            }
+          });
+        }
+      }
+    };
+  }
+</script>
+{% endblock %}

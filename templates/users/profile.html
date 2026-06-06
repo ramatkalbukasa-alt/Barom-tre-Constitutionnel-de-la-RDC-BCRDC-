@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Votre profil — BCRDC{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-lg">
+
+    <!-- Progress indicator -->
+    <div class="flex items-center gap-2 mb-8" aria-label="Étape 3 sur 3">
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-success text-white flex items-center justify-center text-sm flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </span>
+        <span class="text-sm text-success font-medium">Téléphone</span>
+      </div>
+      <div class="flex-1 h-px bg-success" style="background-color: #16A34A;"></div>
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-success text-white flex items-center justify-center text-sm flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </span>
+        <span class="text-sm text-success font-medium">Vérifié</span>
+      </div>
+      <div class="flex-1 h-px bg-slate-200"></div>
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-cta text-white flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0" aria-current="step">3</span>
+        <span class="text-sm font-medium text-cta">Profil</span>
+      </div>
+    </div>
+
+    <div class="card p-8">
+      <div class="text-center mb-6">
+        <h1 class="font-heading text-2xl font-bold text-primary-900 mb-1">Quelques informations</h1>
+        <p class="text-slate-500 text-sm">Ces données permettent d'analyser les résultats par région et démographie. Elles restent anonymes.</p>
+      </div>
+
+      <form method="post" novalidate x-data="{
+        location: '{{ form.location_type.value|default:'' }}',
+        loading: false
+      }" @submit="loading = true">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-5 text-sm text-red-700" role="alert">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+          <!-- Age -->
+          <div>
+            <label for="{{ form.age_group.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">{{ form.age_group.label }}</label>
+            {{ form.age_group }}
+            {% for e in form.age_group.errors %}<p class="mt-1 text-xs text-danger" role="alert">{{ e }}</p>{% endfor %}
+          </div>
+          <!-- Gender -->
+          <div>
+            <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">{{ form.gender.label }}</label>
+            {{ form.gender }}
+            {% for e in form.gender.errors %}<p class="mt-1 text-xs text-danger" role="alert">{{ e }}</p>{% endfor %}
+          </div>
+        </div>
+
+        <!-- Location type -->
+        <div class="mb-5">
+          <fieldset>
+            <legend class="block text-sm font-medium text-primary-900 mb-2">{{ form.location_type.label }}</legend>
+            <div class="grid grid-cols-2 gap-3">
+              {% for choice in form.location_type %}
+              <label class="flex items-center gap-3 card p-3 cursor-pointer border-2 transition-colors"
+                :class="location === '{{ choice.data.value }}' ? 'border-cta bg-cta-light' : 'border-slate-200 hover:border-slate-300'">
+                <input type="radio" name="location_type" value="{{ choice.data.value }}"
+                  x-model="location" class="sr-only" />
+                <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                  :class="location === '{{ choice.data.value }}' ? 'border-cta bg-cta' : 'border-slate-300'">
+                  <div class="w-1.5 h-1.5 rounded-full bg-white" x-show="location === '{{ choice.data.value }}'"></div>
+                </div>
+                <span class="text-sm font-medium">{{ choice.choice_label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </fieldset>
+          {% for e in form.location_type.errors %}<p class="mt-1 text-xs text-danger" role="alert">{{ e }}</p>{% endfor %}
+        </div>
+
+        <!-- Province (if national) -->
+        <div x-show="location === 'national'" x-transition class="mb-5">
+          <label for="{{ form.province.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">{{ form.province.label }}</label>
+          {{ form.province }}
+          {% for e in form.province.errors %}<p class="mt-1 text-xs text-danger" role="alert">{{ e }}</p>{% endfor %}
+        </div>
+
+        <!-- Country (if diaspora) -->
+        <div x-show="location === 'diaspora'" x-transition class="mb-5">
+          <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">{{ form.country.label }}</label>
+          {{ form.country }}
+          {% for e in form.country.errors %}<p class="mt-1 text-xs text-danger" role="alert">{{ e }}</p>{% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full py-3 mt-2" :disabled="loading">
+          <span x-show="!loading">Continuer vers le vote</span>
+          <span x-show="loading" class="flex items-center gap-2">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Enregistrement…
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

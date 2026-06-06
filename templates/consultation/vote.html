@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Voter — Consultation constitutionnelle RDC{% endblock %}
+
+{% block content %}
+<div class="bg-primary-900 text-white py-10">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h1 class="font-heading text-3xl font-bold mb-2">Votre position sur la Constitution</h1>
+    <p class="text-slate-300">Choisissez votre position et expliquez-la. Votre voix est unique et anonyme.</p>
+  </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <form method="post" novalidate x-data="{
+    selectedChoice: '',
+    justification: '',
+    loading: false,
+    charCount: 0,
+    get charLeft() { return 2000 - this.charCount; },
+    get isValid() { return this.selectedChoice !== '' && this.justification.trim().length >= 30; }
+  }" @submit="loading = true">
+    {% csrf_token %}
+
+    <!-- Choice selection -->
+    <fieldset class="mb-8">
+      <legend class="font-heading text-xl font-bold text-primary-900 mb-4">
+        1. Quelle est votre position ?
+        <span class="text-danger text-lg ml-1" aria-hidden="true">*</span>
+      </legend>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <!-- Maintien -->
+        <label class="choice-card card p-5 cursor-pointer border-2 transition-all group"
+          :class="selectedChoice === 'maintien' ? 'border-green-500 bg-green-50' : 'border-slate-200 hover:border-slate-300'">
+          <input type="radio" name="choice" value="maintien" x-model="selectedChoice" class="sr-only" />
+          <div class="text-center">
+            <div class="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center transition-colors"
+              :class="selectedChoice === 'maintien' ? 'bg-green-500' : 'bg-slate-100 group-hover:bg-green-100'">
+              <svg class="w-6 h-6 transition-colors" :class="selectedChoice === 'maintien' ? 'text-white' : 'text-slate-400 group-hover:text-green-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <h3 class="font-heading font-semibold text-sm mb-1" :class="selectedChoice === 'maintien' ? 'text-green-700' : 'text-primary-900'">Maintien</h3>
+            <p class="text-xs text-slate-500 leading-snug">Conserver la Constitution actuelle</p>
+          </div>
+        </label>
+
+        <!-- Révision -->
+        <label class="choice-card card p-5 cursor-pointer border-2 transition-all group"
+          :class="selectedChoice === 'revision' ? 'border-amber-500 bg-amber-50' : 'border-slate-200 hover:border-slate-300'">
+          <input type="radio" name="choice" value="revision" x-model="selectedChoice" class="sr-only" />
+          <div class="text-center">
+            <div class="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center transition-colors"
+              :class="selectedChoice === 'revision' ? 'bg-amber-500' : 'bg-slate-100 group-hover:bg-amber-100'">
+              <svg class="w-6 h-6 transition-colors" :class="selectedChoice === 'revision' ? 'text-white' : 'text-slate-400 group-hover:text-amber-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <h3 class="font-heading font-semibold text-sm mb-1" :class="selectedChoice === 'revision' ? 'text-amber-700' : 'text-primary-900'">Révision</h3>
+            <p class="text-xs text-slate-500 leading-snug">Modifier certains articles</p>
+          </div>
+        </label>
+
+        <!-- Changement -->
+        <label class="choice-card card p-5 cursor-pointer border-2 transition-all group"
+          :class="selectedChoice === 'changement' ? 'border-red-500 bg-red-50' : 'border-slate-200 hover:border-slate-300'">
+          <input type="radio" name="choice" value="changement" x-model="selectedChoice" class="sr-only" />
+          <div class="text-center">
+            <div class="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center transition-colors"
+              :class="selectedChoice === 'changement' ? 'bg-red-500' : 'bg-slate-100 group-hover:bg-red-100'">
+              <svg class="w-6 h-6 transition-colors" :class="selectedChoice === 'changement' ? 'text-white' : 'text-slate-400 group-hover:text-red-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <h3 class="font-heading font-semibold text-sm mb-1" :class="selectedChoice === 'changement' ? 'text-red-700' : 'text-primary-900'">Changement</h3>
+            <p class="text-xs text-slate-500 leading-snug">Nouvelle Constitution</p>
+          </div>
+        </label>
+      </div>
+      {% for e in form.choice.errors %}<p class="mt-2 text-sm text-danger" role="alert">{{ e }}</p>{% endfor %}
+    </fieldset>
+
+    <!-- Justification -->
+    <fieldset class="mb-6">
+      <legend class="font-heading text-xl font-bold text-primary-900 mb-4">
+        2. Expliquez votre position
+        <span class="text-danger text-lg ml-1" aria-hidden="true">*</span>
+      </legend>
+      <div class="card p-1">
+        <label for="{{ form.justification.id_for_label }}" class="sr-only">{{ form.justification.label }}</label>
+        <textarea name="justification" id="{{ form.justification.id_for_label }}"
+          rows="6" maxlength="2000" x-model="justification"
+          @input="charCount = justification.length"
+          placeholder="Expliquez votre position en vous appuyant sur des faits, des articles constitutionnels ou votre vécu de citoyen congolais..."
+          class="w-full p-4 text-base border-0 focus:outline-none resize-none text-primary-900 bg-transparent leading-relaxed"
+          aria-describedby="justification-help char-count"></textarea>
+        <div class="flex items-center justify-between px-4 pb-3 border-t border-slate-100 pt-2">
+          <p id="justification-help" class="text-xs text-slate-400">Minimum 30 caractères</p>
+          <p id="char-count" class="text-xs" :class="charLeft < 100 ? 'text-amber-600' : 'text-slate-400'">
+            <span x-text="charLeft"></span> caractères restants
+          </p>
+        </div>
+      </div>
+      {% for e in form.justification.errors %}<p class="mt-2 text-sm text-danger" role="alert">{{ e }}</p>{% endfor %}
+    </fieldset>
+
+    <!-- Article citation -->
+    <div class="card p-5 mb-8 bg-cta-light border border-blue-200" x-data="{ open: false }">
+      <button type="button" @click="open = !open"
+        class="w-full flex items-center justify-between text-left cursor-pointer"
+        :aria-expanded="open">
+        <span class="font-heading font-medium text-cta flex items-center gap-2 text-sm">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+          Citer un article de la Constitution (facultatif)
+        </span>
+        <svg class="w-4 h-4 text-cta transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div x-show="open" x-transition class="mt-4">
+        <label for="{{ form.cited_article_numbers.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">
+          {{ form.cited_article_numbers.label }}
+        </label>
+        {{ form.cited_article_numbers }}
+        <p class="mt-1.5 text-xs text-slate-500">{{ form.cited_article_numbers.help_text }}</p>
+        {% for e in form.cited_article_numbers.errors %}<p class="mt-1 text-xs text-danger" role="alert">{{ e }}</p>{% endfor %}
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex flex-col sm:flex-row gap-4 items-center">
+      <button type="submit" class="btn btn-primary w-full sm:w-auto px-8 py-3 text-base"
+        :disabled="!isValid || loading"
+        :class="{ 'opacity-50 cursor-not-allowed': !isValid || loading }">
+        <span x-show="!loading" class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Soumettre mon vote
+        </span>
+        <span x-show="loading" class="flex items-center gap-2">
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          Enregistrement…
+        </span>
+      </button>
+      <p x-show="!isValid && selectedChoice === ''" class="text-sm text-slate-500">
+        Sélectionnez d'abord votre position.
+      </p>
+      <p x-show="selectedChoice !== '' && justification.trim().length < 30 && justification.length > 0" class="text-sm text-slate-500">
+        Encore <span x-text="30 - justification.trim().length"></span> caractère(s) minimum.
+      </p>
+    </div>
+
+    <p class="mt-5 text-xs text-slate-400 text-center">
+      Ce vote est définitif. Un seul vote par numéro de téléphone est autorisé.
+    </p>
+  </form>
+</div>
+{% endblock %}

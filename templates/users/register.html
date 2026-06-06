@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Participer — BCRDC{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+
+    <!-- Progress indicator -->
+    <div class="flex items-center gap-2 mb-8" aria-label="Étape 1 sur 3">
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-cta text-white flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0" aria-current="step">1</span>
+        <span class="text-sm font-medium text-cta">Téléphone</span>
+      </div>
+      <div class="flex-1 h-px bg-slate-200"></div>
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0">2</span>
+        <span class="text-sm text-slate-400">Vérification</span>
+      </div>
+      <div class="flex-1 h-px bg-slate-200"></div>
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0">3</span>
+        <span class="text-sm text-slate-400">Profil</span>
+      </div>
+    </div>
+
+    <div class="card p-8">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-full bg-cta-light flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7 text-cta" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+          </svg>
+        </div>
+        <h1 class="font-heading text-2xl font-bold text-primary-900 mb-1">Votre numéro de téléphone</h1>
+        <p class="text-slate-500 text-sm">Vous recevrez un code de vérification par SMS.</p>
+      </div>
+
+      <form method="post" novalidate x-data="{ loading: false }" @submit="loading = true">
+        {% csrf_token %}
+        <div class="mb-5">
+          <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">
+            {{ form.phone_number.label }}
+          </label>
+          {{ form.phone_number }}
+          {% if form.phone_number.help_text %}
+          <p class="mt-1.5 text-xs text-slate-500">{{ form.phone_number.help_text }}</p>
+          {% endif %}
+          {% for error in form.phone_number.errors %}
+          <p class="mt-1.5 text-xs text-danger flex items-center gap-1" role="alert">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            {{ error }}
+          </p>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full py-3" :disabled="loading" :class="{ 'opacity-60 cursor-not-allowed': loading }">
+          <span x-show="!loading">Recevoir le code SMS</span>
+          <span x-show="loading" class="flex items-center gap-2">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Envoi en cours…
+          </span>
+        </button>
+      </form>
+
+      <p class="mt-5 text-xs text-center text-slate-500 leading-relaxed">
+        Votre numéro est converti en empreinte cryptographique. Aucun numéro n'est stocké en clair.
+      </p>
+    </div>
+
+    <p class="mt-4 text-center text-sm text-slate-500">
+      Vous avez déjà participé ?
+      <a href="/consultation/tableau-de-bord/" class="text-cta hover:underline font-medium cursor-pointer">Voir les résultats</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

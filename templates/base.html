@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Baromètre Constitutionnel RDC{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Consultez, comprenez et donnez votre avis sur la Constitution de la RDC.{% endblock %}" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS (Play CDN for dev — replace with CLI build for production) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Lexend', 'sans-serif'],
+            body: ['Source Sans 3', 'sans-serif'],
+          },
+          colors: {
+            primary:   { DEFAULT: '#0F172A', 50: '#F8FAFC', 100: '#E2E8F0', 500: '#64748B', 700: '#334155', 900: '#0F172A' },
+            cta:       { DEFAULT: '#0369A1', hover: '#0284C7', light: '#E0F2FE' },
+            gold:      { DEFAULT: '#D97706', light: '#FEF3C7', dark: '#92400E' },
+            danger:    { DEFAULT: '#DC2626', light: '#FEE2E2' },
+            success:   { DEFAULT: '#16A34A', light: '#DCFCE7' },
+            maintien:  '#16A34A',
+            revision:  '#D97706',
+            changement:'#DC2626',
+          },
+          boxShadow: {
+            card: '0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06)',
+            'card-hover': '0 4px 12px 0 rgb(0 0 0 / 0.10)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  <!-- Alpine.js -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <style>
+    body { font-family: 'Source Sans 3', sans-serif; font-size: 16px; line-height: 1.6; color: #0F172A; background-color: #F8FAFC; }
+    h1,h2,h3,h4,h5,h6 { font-family: 'Lexend', sans-serif; }
+    .form-input, .form-select, .form-textarea {
+      display: block; width: 100%; border: 1.5px solid #CBD5E1; border-radius: 0.5rem;
+      padding: 0.625rem 0.875rem; font-size: 1rem; background: #fff; color: #0F172A;
+      transition: border-color 150ms, box-shadow 150ms;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none; border-color: #0369A1; box-shadow: 0 0 0 3px rgba(3,105,161,0.15);
+    }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.625rem 1.5rem; border-radius: 0.5rem; font-family: 'Lexend', sans-serif;
+      font-weight: 500; font-size: 1rem; cursor: pointer; transition: all 150ms; border: none;
+      text-decoration: none; white-space: nowrap; min-height: 44px;
+    }
+    .btn-primary { background: #0369A1; color: #fff; }
+    .btn-primary:hover { background: #0284C7; }
+    .btn-secondary { background: #E2E8F0; color: #0F172A; }
+    .btn-secondary:hover { background: #CBD5E1; }
+    .btn-gold { background: #D97706; color: #fff; }
+    .btn-gold:hover { background: #B45309; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem;
+      border-radius: 9999px; font-size: 0.8rem; font-weight: 500; }
+    *:focus-visible { outline: 3px solid #0369A1; outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0ms !important; } }
+    .htmx-indicator { display: none; }
+    .htmx-request .htmx-indicator { display: inline-flex; }
+    .htmx-request.htmx-indicator { display: inline-flex; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Skip to content -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 btn btn-primary z-50">
+    Aller au contenu principal
+  </a>
+
+  <!-- Navigation -->
+  <header class="bg-primary-900 text-white shadow-md sticky top-0 z-40" role="banner">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Navigation principale">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-3 group" aria-label="BCRDC — Accueil">
+          <div class="w-9 h-9 rounded-lg bg-gold flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <div>
+            <span class="font-heading font-semibold text-base leading-none block">BCRDC</span>
+            <span class="text-xs text-slate-400 hidden sm:block">Baromètre Constitutionnel RDC</span>
+          </div>
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-1" role="list">
+          <a href="/constitution/" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors" role="listitem">Constitution</a>
+          <a href="/ia/" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors" role="listitem">Poser une question</a>
+          <a href="/consultation/tableau-de-bord/" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors" role="listitem">Résultats</a>
+          <a href="/participer/" class="btn btn-gold ml-3 text-sm px-4 py-2" role="listitem">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Participer
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button type="button" x-data @click="$dispatch('toggle-menu')"
+          class="md:hidden p-2 rounded-md text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+          aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Nav -->
+      <div id="mobile-menu" x-data="{ open: false }" @toggle-menu.window="open = !open" x-show="open"
+        x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        class="pb-3 border-t border-white/10 mt-1">
+        <div class="pt-2 space-y-1">
+          <a href="/constitution/" class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10">Constitution</a>
+          <a href="/ia/" class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10">Poser une question</a>
+          <a href="/consultation/tableau-de-bord/" class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white hover:bg-white/10">Résultats</a>
+          <a href="/participer/" class="block px-3 py-2 rounded-md text-sm font-medium text-gold-DEFAULT bg-gold/10 hover:bg-gold/20">Participer</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4" role="alert" aria-live="polite">
+    {% for message in messages %}
+    <div x-data="{ show: true }" x-show="show" x-transition
+      class="flex items-start gap-3 p-4 mb-3 rounded-lg border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'warning' %}bg-amber-50 border-amber-200 text-amber-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}">
+      <p class="flex-1 text-sm">{{ message }}</p>
+      <button @click="show = false" class="flex-shrink-0 text-current opacity-60 hover:opacity-100 cursor-pointer" aria-label="Fermer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Main content -->
+  <main id="main-content" class="flex-1 w-full" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-primary-900 text-slate-400 mt-auto" role="contentinfo">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="font-heading font-semibold text-white mb-3">BCRDC</h3>
+          <p class="text-sm leading-relaxed">Baromètre Constitutionnel de la République Démocratique du Congo — une plateforme civique neutre.</p>
+        </div>
+        <div>
+          <h3 class="font-heading font-semibold text-white mb-3">Navigation</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/constitution/" class="hover:text-white transition-colors">Constitution</a></li>
+            <li><a href="/ia/" class="hover:text-white transition-colors">Assistant IA</a></li>
+            <li><a href="/consultation/tableau-de-bord/" class="hover:text-white transition-colors">Tableau de bord</a></li>
+            <li><a href="/participer/" class="hover:text-white transition-colors">Participer</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-heading font-semibold text-white mb-3">Principes</h3>
+          <ul class="space-y-2 text-sm">
+            <li>Neutralité politique absolue</li>
+            <li>Transparence des données</li>
+            <li>Respect de la vie privée</li>
+            <li>Accessibilité universelle</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-white/10 mt-8 pt-6 text-xs text-center">
+        <p>Constitution de la RDC — Journal Officiel du 5 février 2011. Cette plateforme est informative et ne constitue pas un avis juridique officiel.</p>
+      </div>
+    </div>
+  </footer>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

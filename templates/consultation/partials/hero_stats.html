@@ -1,0 +1,46 @@
+<div class="card p-6 bg-white/5 border border-white/10 rounded-xl text-white">
+  {% if stats.total == 0 %}
+  <div class="text-center py-4">
+    <p class="text-slate-300 text-sm mb-1">Consultation ouverte</p>
+    <p class="font-heading text-4xl font-bold text-white mb-1">0</p>
+    <p class="text-slate-400 text-sm">participant pour le moment — soyez le premier !</p>
+  </div>
+  {% else %}
+  <div class="mb-4">
+    <p class="text-slate-400 text-xs uppercase tracking-wide mb-1">Participants</p>
+    <p class="font-heading text-4xl font-bold text-white">{{ stats.total }}</p>
+  </div>
+  <div class="space-y-3">
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <span class="text-green-400 font-medium">Maintien</span>
+        <span class="text-white font-bold">{{ stats.maintien_pct }}%</span>
+      </div>
+      <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+        <div class="h-2 rounded-full bg-green-500 transition-all duration-700" style="width: {{ stats.maintien_pct }}%"></div>
+      </div>
+    </div>
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <span class="text-amber-400 font-medium">Révision</span>
+        <span class="text-white font-bold">{{ stats.revision_pct }}%</span>
+      </div>
+      <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+        <div class="h-2 rounded-full bg-amber-500 transition-all duration-700" style="width: {{ stats.revision_pct }}%"></div>
+      </div>
+    </div>
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <span class="text-red-400 font-medium">Changement</span>
+        <span class="text-white font-bold">{{ stats.changement_pct }}%</span>
+      </div>
+      <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+        <div class="h-2 rounded-full bg-red-500 transition-all duration-700" style="width: {{ stats.changement_pct }}%"></div>
+      </div>
+    </div>
+  </div>
+  <a href="/consultation/tableau-de-bord/" class="block mt-4 text-center text-xs text-slate-400 hover:text-white transition-colors cursor-pointer">
+    Voir le tableau de bord complet →
+  </a>
+  {% endif %}
+</div>

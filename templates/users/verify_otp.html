@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Vérification OTP — BCRDC{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+
+    <!-- Progress indicator -->
+    <div class="flex items-center gap-2 mb-8" aria-label="Étape 2 sur 3">
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-success text-white flex items-center justify-center text-sm flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        </span>
+        <span class="text-sm text-success font-medium">Téléphone</span>
+      </div>
+      <div class="flex-1 h-px bg-slate-200"></div>
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-cta text-white flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0" aria-current="step">2</span>
+        <span class="text-sm font-medium text-cta">Vérification</span>
+      </div>
+      <div class="flex-1 h-px bg-slate-200"></div>
+      <div class="flex-1 flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-semibold font-heading flex-shrink-0">3</span>
+        <span class="text-sm text-slate-400">Profil</span>
+      </div>
+    </div>
+
+    <div class="card p-8">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 rounded-full bg-gold-light flex items-center justify-center mx-auto mb-4">
+          <svg class="w-7 h-7" style="color: #D97706;" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h1 class="font-heading text-2xl font-bold text-primary-900 mb-1">Entrez votre code</h1>
+        <p class="text-slate-500 text-sm">
+          Code envoyé au
+          <strong class="text-primary-900">{{ phone }}</strong>
+        </p>
+      </div>
+
+      <form method="post" novalidate x-data="{ loading: false }" @submit="loading = true">
+        {% csrf_token %}
+        <div class="mb-5">
+          <label for="{{ form.otp_code.id_for_label }}" class="block text-sm font-medium text-primary-900 mb-1.5">
+            {{ form.otp_code.label }}
+          </label>
+          <input type="text" name="otp_code" id="{{ form.otp_code.id_for_label }}"
+            maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+            placeholder="000000" autofocus
+            class="form-input text-center text-3xl tracking-[0.5em] font-heading"
+            style="letter-spacing: 0.4em;" />
+          {% for error in form.otp_code.errors %}
+          <p class="mt-1.5 text-xs text-danger flex items-center gap-1" role="alert">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            {{ error }}
+          </p>
+          {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full py-3" :disabled="loading">
+          <span x-show="!loading">Vérifier le code</span>
+          <span x-show="loading" class="flex items-center gap-2">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Vérification…
+          </span>
+        </button>
+      </form>
+
+      <div class="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+        <a href="/participer/renvoyer/" class="text-cta hover:underline cursor-pointer font-medium">
+          Renvoyer le code
+        </a>
+        <a href="/participer/" class="text-slate-500 hover:underline cursor-pointer">
+          Changer de numéro
+        </a>
+      </div>
+
+      <p class="mt-5 text-xs text-center text-slate-400">
+        Le code expire dans {% if otp_expiry %}{{ otp_expiry }}{% else %}10{% endif %} minutes.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

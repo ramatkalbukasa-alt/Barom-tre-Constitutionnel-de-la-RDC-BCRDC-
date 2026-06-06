@@ -1,0 +1,45 @@
+{% if articles %}
+<ul class="space-y-3" role="list" aria-label="Articles constitutionnels">
+  {% for article in articles %}
+  <li>
+    <a href="/constitution/article/{{ article.number }}/"
+      class="card p-5 block hover:shadow-card-hover transition-shadow group cursor-pointer">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-cta-light flex items-center justify-center">
+          <span class="font-heading font-bold text-cta text-sm">{{ article.number }}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <h3 class="font-heading font-semibold text-primary-900 group-hover:text-cta transition-colors">
+              {% if article.title %}{{ article.title }}{% else %}Article {{ article.number }}{% endif %}
+            </h3>
+            <span class="badge bg-slate-100 text-slate-600 text-xs">
+              {{ article.get_theme_display }}
+            </span>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed line-clamp-3">
+            {{ article.content|truncatechars:220 }}
+          </p>
+        </div>
+        <svg class="w-5 h-5 text-slate-400 group-hover:text-cta transition-colors flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="text-center py-16">
+  <svg class="w-12 h-12 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <p class="text-slate-500 font-medium">Aucun article trouvé</p>
+  {% if query %}
+  <p class="text-slate-400 text-sm mt-1">Essayez avec d'autres mots-clés.</p>
+  <a href="/constitution/" class="mt-4 btn btn-secondary text-sm inline-flex">Réinitialiser</a>
+  {% else %}
+  <p class="text-slate-400 text-sm mt-1">La base de données constitutionnelle n'est pas encore peuplée.</p>
+  {% endif %}
+</div>
+{% endif %}
