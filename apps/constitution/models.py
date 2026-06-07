@@ -75,11 +75,11 @@ class ConstitutionArticle(models.Model):
     )
     search_vector = SearchVectorField(null=True, blank=True)
     embedding = VectorField(
-        dimensions=1536,
+        dimensions=768,
         null=True,
         blank=True,
         verbose_name="Embedding vectoriel",
-        help_text="Vecteur OpenAI text-embedding-3-small (1536 dims)",
+        help_text="Vecteur Gemini text-embedding-004 (768 dims)",
     )
     language = models.CharField(
         max_length=10,

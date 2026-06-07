@@ -15,6 +15,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:50867",
     "http://127.0.0.1:64248",
     "http://localhost:64248",
+    "http://127.0.0.1:54369",
+    "http://localhost:54369",
 ]
 
 CACHES = {

@@ -120,7 +120,31 @@ def llm_chat(
     )
 
 
+def _gemini_embed(text: str, task_type: str = "retrieval_document") -> list[float]:
+    """Embedding Gemini gemini-embedding-001 (palier gratuit), sortie 768 dims."""
+    import google.generativeai as genai
+
+    genai.configure(api_key=settings.GEMINI_API_KEY)
+    result = genai.embed_content(
+        model=settings.GEMINI_EMBED_MODEL,
+        content=text[:8000],
+        task_type=task_type,
+        output_dimensionality=settings.EMBED_DIMENSIONS,
+    )
+    return result["embedding"]
+
+
 def embed_text(text: str) -> list[float]:
+    """Vecteur semantique d'un texte.
+
+    Fournisseur par defaut : Gemini (gratuit, 768 dims). Les vecteurs stockes et
+    les vecteurs de requete doivent provenir du MEME modele : on ne melange donc
+    pas OpenAI (1536) et Gemini (768).
+    """
+    if _gemini_available():
+        return _gemini_embed(text)
+
+    # Repli OpenAI uniquement si Gemini n'est pas configure.
     client = _get_openai_client()
     response = client.embeddings.create(
         model=settings.OPENAI_EMBED_MODEL,

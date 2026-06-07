@@ -142,6 +142,10 @@ OPENAI_TIMEOUT = env.float("OPENAI_TIMEOUT", default=20.0)
 # cle absente, panne reseau). gemini-2.5-flash dispose d'un palier gratuit.
 GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
 GEMINI_CHAT_MODEL = env("GEMINI_CHAT_MODEL", default="gemini-2.5-flash")
+# Embeddings : Gemini gemini-embedding-001 (gratuit). On demande une sortie de
+# 768 dimensions pour la recherche semantique du RAG.
+GEMINI_EMBED_MODEL = env("GEMINI_EMBED_MODEL", default="models/gemini-embedding-001")
+EMBED_DIMENSIONS = 768
 
 OTP_EXPIRY_MINUTES = env("OTP_EXPIRY_MINUTES")
 OTP_MAX_ATTEMPTS = env("OTP_MAX_ATTEMPTS")
