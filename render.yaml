@@ -1,0 +1,133 @@
+# Render Blueprint — deploiement en un clic du Barometre Constitutionnel (BCRDC).
+# Docs : https://render.com/docs/blueprint-spec
+#
+# Cree automatiquement : une base PostgreSQL (avec pgvector), un cache Redis,
+# et le service web Django (gunicorn + WhiteNoise).
+#
+# Apres le premier deploiement, renseignez les secrets marques "sync: false"
+# (GEMINI_API_KEY, etc.) dans le dashboard Render.
+
+databases:
+  - name: bcrdc-db
+    databaseName: bcrdc_db
+    user: bcrdc_user
+    plan: free
+    postgresMajorVersion: "16"
+
+services:
+  # ----------------------------------------------------------------------------
+  # Cache / broker Redis
+  # ----------------------------------------------------------------------------
+  - type: redis
+    name: bcrdc-redis
+    plan: free
+    ipAllowList: []          # accessible uniquement par les services internes
+    maxmemoryPolicy: noeviction
+
+  # ----------------------------------------------------------------------------
+  # Application web Django
+  # ----------------------------------------------------------------------------
+  - type: web
+    name: bcrdc-web
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
+    healthCheckPath: /healthz/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.4"
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      # ALLOWED_HOSTS / CSRF sont derives automatiquement de
+      # RENDER_EXTERNAL_HOSTNAME dans config/settings/prod.py.
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bcrdc-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: bcrdc-redis
+          property: connectionString
+      # --- Cles IA : a renseigner dans le dashboard apres deploiement ---
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_CHAT_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_EMBED_MODEL
+        value: models/gemini-embedding-001
+      # --- OTP / divers ---
+      - key: OTP_EXPIRY_MINUTES
+        value: "10"
+      - key: OTP_MAX_ATTEMPTS
+        value: "3"
+      - key: OTP_RESEND_COOLDOWN_SECONDS
+        value: "60"
+      - key: PHONE_HASH_PEPPER
+        generateValue: true
+      - key: SITE_URL
+        sync: false
+
+  # ----------------------------------------------------------------------------
+  # (OPTIONNEL) Worker Celery — necessite un plan payant sur Render.
+  # L'app fonctionne sans : les taches asynchrones (classification IA des
+  # arguments, rafraichissement des stats) sont alors simplement ignorees.
+  # Decommentez pour les activer.
+  # ----------------------------------------------------------------------------
+  # - type: worker
+  #   name: bcrdc-worker
+  #   runtime: python
+  #   plan: starter
+  #   buildCommand: "pip install -r requirements.txt"
+  #   startCommand: "celery -A config worker -l info"
+  #   envVars:
+  #     - key: PYTHON_VERSION
+  #       value: "3.12.4"
+  #     - key: DJANGO_SETTINGS_MODULE
+  #       value: config.settings.prod
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: bcrdc-db
+  #         property: connectionString
+  #     - key: REDIS_URL
+  #       fromService:
+  #         type: redis
+  #         name: bcrdc-redis
+  #         property: connectionString
+  #     - key: SECRET_KEY
+  #       fromService:
+  #         type: web
+  #         name: bcrdc-web
+  #         envVarKey: SECRET_KEY
+  #     - key: GEMINI_API_KEY
+  #       sync: false
+
+  # - type: worker
+  #   name: bcrdc-beat
+  #   runtime: python
+  #   plan: starter
+  #   buildCommand: "pip install -r requirements.txt"
+  #   startCommand: "celery -A config beat -l info"
+  #   envVars:
+  #     - key: PYTHON_VERSION
+  #       value: "3.12.4"
+  #     - key: DJANGO_SETTINGS_MODULE
+  #       value: config.settings.prod
+  #     - key: DATABASE_URL
+  #       fromDatabase:
+  #         name: bcrdc-db
+  #         property: connectionString
+  #     - key: REDIS_URL
+  #       fromService:
+  #         type: redis
+  #         name: bcrdc-redis
+  #         property: connectionString
