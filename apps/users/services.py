@@ -1,4 +1,5 @@
 import random
+import re
 import logging
 from datetime import timedelta
 from django.utils import timezone
@@ -8,50 +9,59 @@ from .models import CitizenUser, OTPVerification
 logger = logging.getLogger(__name__)
 
 
+def normalize_phone_e164(phone_number: str) -> str:
+    """Convertit un numéro saisi en format international +243…"""
+    digits = re.sub(r"\D", "", phone_number)
+    if digits.startswith("243"):
+        return f"+{digits}"
+    if digits.startswith("0") and len(digits) >= 10:
+        return f"+243{digits[1:]}"
+    if len(digits) == 9:
+        return f"+243{digits}"
+    if phone_number.strip().startswith("+"):
+        return f"+{digits}"
+    return f"+{digits}"
+
+
 def generate_otp() -> str:
     return str(random.randint(100000, 999999))
 
 
-def send_otp(phone_number: str, otp_code: str) -> bool:
-    """
-    Send OTP via SMS.
-    In development (no AT credentials), logs to console.
-    In production with AT credentials, uses Africa's Talking.
-    """
-    at_username = getattr(settings, "AT_USERNAME", "")
-    at_api_key = getattr(settings, "AT_API_KEY", "")
-
-    if at_username and at_api_key:
-        return _send_via_africas_talking(phone_number, otp_code, at_username, at_api_key)
-
-    return _send_mock_console(phone_number, otp_code)
-
-
-def _send_mock_console(phone_number: str, otp_code: str) -> bool:
-    logger.info("=" * 50)
-    logger.info(f"[MOCK SMS] → {phone_number}")
-    logger.info(f"[MOCK SMS] Code OTP : {otp_code}")
-    logger.info(f"[MOCK SMS] Expire dans {settings.OTP_EXPIRY_MINUTES} minutes")
-    logger.info("=" * 50)
-    print(f"\n{'='*50}\n[BCRDC OTP] Code pour {phone_number} : {otp_code}\n{'='*50}\n")
+def sms_uses_mock() -> bool:
+    """L'envoi SMS est toujours simulé (mode mock console). Le code OTP est
+    affiché directement sur l'interface web de vérification."""
     return True
 
 
-def _send_via_africas_talking(phone_number: str, otp_code: str, username: str, api_key: str) -> bool:
+def get_otp_for_ui(phone_number: str) -> str | None:
+    """Code OTP à afficher à l'écran (mode mock : le SMS n'est pas réellement envoyé)."""
+    phone_hash = CitizenUser.hash_phone(phone_number)
     try:
-        import africastalking
-        africastalking.initialize(username, api_key)
-        sms = africastalking.SMS
-        message = f"BCRDC: Votre code de vérification est {otp_code}. Valide {settings.OTP_EXPIRY_MINUTES} min."
-        response = sms.send(message, [phone_number], sender_id=settings.AT_SENDER_ID)
-        logger.info(f"AT SMS response: {response}")
-        return True
-    except Exception as e:
-        logger.error(f"Africa's Talking SMS error: {e}")
-        return False
+        otp = OTPVerification.objects.filter(
+            phone_hash=phone_hash,
+            is_used=False,
+        ).latest("created_at")
+    except OTPVerification.DoesNotExist:
+        return None
+    if otp.is_expired():
+        return None
+    return otp.otp_code
 
 
-def create_otp_for_phone(phone_number: str) -> OTPVerification:
+def send_otp(phone_number: str, otp_code: str) -> tuple[bool, str]:
+    """Mode mock : aucun SMS réel n'est envoyé. Le code est journalisé et affiché
+    sur la page de vérification. Retourne toujours (True, "").
+    """
+    logger.info("[MOCK SMS] → %s | code OTP : %s", phone_number, otp_code)
+    return True, ""
+
+
+def create_otp_for_phone(phone_number: str) -> tuple[bool, str]:
+    """
+    Crée un OTP et tente l'envoi SMS.
+    Retourne (succès, message_erreur_ou_vide).
+    """
+    phone_e164 = normalize_phone_e164(phone_number)
     phone_hash = CitizenUser.hash_phone(phone_number)
     OTPVerification.objects.filter(phone_hash=phone_hash, is_used=False).update(is_used=True)
 
@@ -62,8 +72,9 @@ def create_otp_for_phone(phone_number: str) -> OTPVerification:
         otp_code=otp_code,
         expires_at=expiry,
     )
-    send_otp(phone_number, otp_code)
-    return otp
+
+    send_otp(phone_e164, otp_code)
+    return True, ""
 
 
 def verify_otp(phone_number: str, code: str) -> tuple[bool, str]:
@@ -102,3 +113,21 @@ def get_or_create_citizen(phone_number: str) -> CitizenUser:
     phone_hash = CitizenUser.hash_phone(phone_number)
     user, _ = CitizenUser.objects.get_or_create(phone_hash=phone_hash)
     return user
+
+
+def seconds_until_resend_allowed(phone_number: str) -> int:
+    """How many seconds the user must wait before a new OTP can be sent.
+
+    Prevents SMS flooding / cost abuse via repeated resends.
+    """
+    phone_hash = CitizenUser.hash_phone(phone_number)
+    last = (
+        OTPVerification.objects.filter(phone_hash=phone_hash)
+        .order_by("-created_at")
+        .first()
+    )
+    if not last:
+        return 0
+    cooldown = getattr(settings, "OTP_RESEND_COOLDOWN_SECONDS", 60)
+    elapsed = (timezone.now() - last.created_at).total_seconds()
+    return max(0, int(cooldown - elapsed))

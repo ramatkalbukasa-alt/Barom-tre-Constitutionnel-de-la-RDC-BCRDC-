@@ -1,5 +1,7 @@
 import hashlib
+import hmac
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 
@@ -148,8 +150,19 @@ class CitizenUser(AbstractBaseUser, PermissionsMixin):
 
     @staticmethod
     def hash_phone(phone_number: str) -> str:
+        """Keyed (HMAC-SHA256) hash of the phone number.
+
+        A plain SHA-256 of a phone number is trivially reversible (the keyspace
+        is tiny), which would expose citizen identities. Using HMAC with a
+        server-side secret pepper makes the hash non-reversible without the key.
+        """
         normalized = "".join(filter(str.isdigit, phone_number))
-        return hashlib.sha256(normalized.encode()).hexdigest()
+        pepper = (getattr(settings, "PHONE_HASH_PEPPER", "") or settings.SECRET_KEY)
+        return hmac.new(
+            pepper.encode(),
+            normalized.encode(),
+            hashlib.sha256,
+        ).hexdigest()
 
 
 class OTPVerification(models.Model):

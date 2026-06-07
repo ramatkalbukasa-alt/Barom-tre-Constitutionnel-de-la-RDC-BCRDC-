@@ -18,6 +18,12 @@ from apps.constitution.models import ConstitutionArticle
 from apps.ai_engine.rag import embed_text
 
 
+def _is_fatal_openai_error(exc: Exception) -> bool:
+    """Stop the batch on billing/quota errors — retrying 229 times wastes time."""
+    msg = str(exc).lower()
+    return "insufficient_quota" in msg or "invalid_api_key" in msg or "incorrect api key" in msg
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -32,20 +38,29 @@ def main():
         return
 
     print(f"Génération d'embeddings pour {total} articles…")
+    ok = 0
 
     for i, article in enumerate(qs, 1):
         try:
             text = f"Article {article.number}: {article.title}\n{article.content}"
             article.embedding = embed_text(text)
             article.save(update_fields=["embedding"])
+            ok += 1
             print(f"  [{i:3d}/{total}] Art. {article.number} ✅")
             if i % 20 == 0:
                 time.sleep(1)
         except Exception as e:
             print(f"  [{i:3d}/{total}] Art. {article.number} ❌ {e}")
+            if _is_fatal_openai_error(e):
+                print()
+                print("⛔ Arrêt : quota OpenAI épuisé ou clé API invalide.")
+                print("   → https://platform.openai.com/account/billing")
+                print("   → Mettez à jour OPENAI_API_KEY dans .env puis relancez ce script.")
+                print(f"   ({ok}/{total} embeddings générés avant l'arrêt)")
+                sys.exit(1)
             time.sleep(5)
 
-    print(f"\n✅ {total} embeddings générés.")
+    print(f"\n✅ {ok} embeddings générés.")
 
 
 if __name__ == "__main__":

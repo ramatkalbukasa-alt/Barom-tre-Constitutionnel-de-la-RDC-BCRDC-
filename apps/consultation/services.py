@@ -63,6 +63,30 @@ def compute_stats() -> dict:
     }
 
 
+def snapshot_to_stats(snapshot: VoteStatSnapshot) -> dict:
+    """Rebuild the template-facing stats dict from a cached snapshot, so the
+    dashboard can render without recomputing aggregates on every request."""
+    total = snapshot.total_votes
+
+    def pct(n: int) -> float:
+        return round(n / total * 100, 1) if total else 0
+
+    return {
+        "total": total,
+        "maintien": snapshot.maintien_count,
+        "revision": snapshot.revision_count,
+        "changement": snapshot.changement_count,
+        "maintien_pct": pct(snapshot.maintien_count),
+        "revision_pct": pct(snapshot.revision_count),
+        "changement_pct": pct(snapshot.changement_count),
+        "by_province": snapshot.stats_by_province,
+        "by_location": snapshot.stats_by_location,
+        "by_age": snapshot.stats_by_age,
+        "by_gender": snapshot.stats_by_gender,
+        "by_argument": snapshot.stats_by_argument,
+    }
+
+
 def get_or_refresh_snapshot() -> VoteStatSnapshot:
     snapshot, _ = VoteStatSnapshot.objects.get_or_create(pk=1)
     stats = compute_stats()

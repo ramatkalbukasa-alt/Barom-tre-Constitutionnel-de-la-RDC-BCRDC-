@@ -5,12 +5,15 @@ Pipeline:
   1. Embed the user question with text-embedding-3-small
   2. Find the k most relevant articles via cosine similarity (stored as JSON)
   3. Build a grounded prompt with the retrieved articles
-  4. Call gpt-4o-mini for a neutral, cited, bilingual (FR + Lingala) answer
+  4. Generate a neutral, cited, bilingual (FR + Lingala) answer
+
+Fournisseurs LLM : OpenAI (gpt-4o-mini) en primaire, avec repli automatique
+sur Google Gemini (gemini-1.5-flash, palier gratuit) si OpenAI echoue ou n'est
+pas configure.
 """
 import json
-import math
 import logging
-from typing import Optional
+import re
 from django.conf import settings
 from django.db.models import Q
 
@@ -19,16 +22,102 @@ logger = logging.getLogger(__name__)
 
 def _get_openai_client():
     import openai
-    return openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+    return openai.OpenAI(
+        api_key=settings.OPENAI_API_KEY,
+        timeout=getattr(settings, "OPENAI_TIMEOUT", 20.0),
+        max_retries=2,
+    )
 
 
-def cosine_similarity(a: list[float], b: list[float]) -> float:
-    dot = sum(x * y for x, y in zip(a, b))
-    norm_a = math.sqrt(sum(x ** 2 for x in a))
-    norm_b = math.sqrt(sum(x ** 2 for x in b))
-    if norm_a == 0 or norm_b == 0:
-        return 0.0
-    return dot / (norm_a * norm_b)
+def _openai_available() -> bool:
+    return bool(getattr(settings, "OPENAI_API_KEY", ""))
+
+
+def _gemini_available() -> bool:
+    return bool(getattr(settings, "GEMINI_API_KEY", ""))
+
+
+def _gemini_chat(prompt: str, *, json_mode: bool, max_tokens: int, temperature: float) -> str:
+    """Appel Gemini renvoyant le texte brut de la reponse.
+
+    Les modeles Gemini 2.5 consomment une partie du budget `max_output_tokens`
+    pour leur raisonnement interne ("thinking"). On accorde donc une marge
+    genereuse afin que la reponse JSON ne soit pas tronquee.
+    """
+    import google.generativeai as genai
+
+    genai.configure(api_key=settings.GEMINI_API_KEY)
+    generation_config = {
+        "temperature": temperature,
+        "max_output_tokens": max(max_tokens * 4, 4096),
+    }
+    if json_mode:
+        generation_config["response_mime_type"] = "application/json"
+    model = genai.GenerativeModel(
+        settings.GEMINI_CHAT_MODEL,
+        generation_config=generation_config,
+    )
+    response = model.generate_content(prompt)
+    text = (response.text or "").strip()
+    # Filet de securite : retirer un eventuel encadrement markdown ```json … ```
+    if text.startswith("```"):
+        text = re.sub(r"^```[a-zA-Z]*\s*", "", text)
+        text = re.sub(r"\s*```$", "", text).strip()
+    return text
+
+
+def llm_chat(
+    system_prompt: str,
+    user_message: str,
+    *,
+    json_mode: bool = False,
+    max_tokens: int = 1200,
+    temperature: float = 0.2,
+) -> tuple[str, str, int]:
+    """Genere une reponse via OpenAI, avec repli sur Gemini.
+
+    Retourne (texte_brut, fournisseur, tokens_utilises).
+    Leve une exception seulement si tous les fournisseurs echouent.
+    """
+    last_error: Exception | None = None
+
+    if _openai_available():
+        try:
+            client = _get_openai_client()
+            kwargs = {
+                "model": settings.OPENAI_CHAT_MODEL,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message},
+                ],
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+            if json_mode:
+                kwargs["response_format"] = {"type": "json_object"}
+            response = client.chat.completions.create(**kwargs)
+            tokens = response.usage.total_tokens if response.usage else 0
+            return response.choices[0].message.content, "openai", tokens
+        except Exception as e:
+            last_error = e
+            logger.warning("OpenAI indisponible (%s) — repli sur Gemini.", e)
+
+    if _gemini_available():
+        try:
+            # Gemini n'a pas de role systeme distinct : on prefixe le prompt.
+            prompt = f"{system_prompt}\n\n{user_message}"
+            text = _gemini_chat(
+                prompt, json_mode=json_mode, max_tokens=max_tokens, temperature=temperature
+            )
+            return text, "gemini", 0
+        except Exception as e:
+            last_error = e
+            logger.error("Gemini a aussi echoue : %s", e)
+
+    raise RuntimeError(
+        f"Aucun fournisseur LLM disponible. Derniere erreur : {last_error}"
+        if last_error else "Aucune cle API LLM configuree (OPENAI_API_KEY ou GEMINI_API_KEY)."
+    )
 
 
 def embed_text(text: str) -> list[float]:
@@ -42,9 +131,11 @@ def embed_text(text: str) -> list[float]:
 
 def retrieve_relevant_articles(question: str, top_k: int = 5) -> list:
     """
-    Retrieves the top_k most relevant ConstitutionArticle objects.
+    Retrieves the top_k most relevant ConstitutionArticle objects using a
+    pgvector cosine-distance search (backed by the HNSW index in Postgres).
     Falls back to keyword search if no embeddings are available.
     """
+    from pgvector.django import CosineDistance
     from apps.constitution.models import ConstitutionArticle
 
     articles_with_embeddings = ConstitutionArticle.objects.exclude(embedding=None)
@@ -59,14 +150,11 @@ def retrieve_relevant_articles(question: str, top_k: int = 5) -> list:
         logger.error(f"Embedding error: {e}")
         return _keyword_fallback(question, top_k)
 
-    scored = []
-    for article in articles_with_embeddings:
-        if article.embedding:
-            sim = cosine_similarity(question_embedding, article.embedding)
-            scored.append((sim, article))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-    return [article for _, article in scored[:top_k]]
+    return list(
+        articles_with_embeddings.order_by(
+            CosineDistance("embedding", question_embedding)
+        )[:top_k]
+    )
 
 
 def _keyword_fallback(question: str, top_k: int = 5) -> list:
@@ -127,31 +215,24 @@ Articles constitutionnels pertinents :
 Réponds en JSON selon le format indiqué dans tes instructions."""
 
     try:
-        client = _get_openai_client()
-        response = client.chat.completions.create(
-            model=settings.OPENAI_CHAT_MODEL,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message},
-            ],
-            temperature=0.2,
-            response_format={"type": "json_object"},
-            max_tokens=1200,
+        raw, provider, tokens = llm_chat(
+            SYSTEM_PROMPT, user_message, json_mode=True, max_tokens=1200, temperature=0.2
         )
-        raw = response.choices[0].message.content
         data = json.loads(raw)
         data["articles_objects"] = articles
-        data["tokens_used"] = response.usage.total_tokens
+        data["tokens_used"] = tokens
+        data["provider"] = provider
         data["error"] = None
         return data
     except Exception as e:
-        logger.error(f"OpenAI API error: {e}")
+        logger.error(f"LLM error (OpenAI + Gemini): {e}")
         return {
             "fr": "Une erreur est survenue lors de la génération de la réponse. Veuillez réessayer.",
             "lingala": "Likambo moko esalemaki. Sala lisusu.",
             "articles_cites": [a.number for a in articles],
             "articles_objects": articles,
             "tokens_used": 0,
+            "provider": None,
             "error": str(e),
         }
 
@@ -163,9 +244,10 @@ def classify_argument(justification: str) -> str:
     """
     from apps.consultation.models import ARGUMENT_CATEGORY
 
-    if not settings.OPENAI_API_KEY:
+    if not (_openai_available() or _gemini_available()):
         return ARGUMENT_CATEGORY.NON_CLASSE
 
+    system = "Tu es un classificateur. Reponds par un seul mot-cle, sans ponctuation."
     prompt = f"""Classifie cet argument d'un citoyen congolais sur la Constitution dans UNE seule catégorie.
 
 Catégories :
@@ -179,17 +261,16 @@ Argument : "{justification[:500]}"
 Réponds UNIQUEMENT avec le mot-clé : juridique, politique, emotionnel, ou socioeconomique."""
 
     try:
-        client = _get_openai_client()
-        response = client.chat.completions.create(
-            model=settings.OPENAI_CHAT_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-            max_tokens=10,
+        raw, _provider, _tokens = llm_chat(
+            system, prompt, json_mode=False, max_tokens=10, temperature=0
         )
-        result = response.choices[0].message.content.strip().lower()
+        result = raw.strip().lower()
         valid = {ARGUMENT_CATEGORY.JURIDIQUE, ARGUMENT_CATEGORY.POLITIQUE,
                  ARGUMENT_CATEGORY.EMOTIONNEL, ARGUMENT_CATEGORY.SOCIOECONOMIQUE}
-        return result if result in valid else ARGUMENT_CATEGORY.NON_CLASSE
+        for v in valid:
+            if v in result:
+                return v
+        return ARGUMENT_CATEGORY.NON_CLASSE
     except Exception as e:
         logger.error(f"Argument classification error: {e}")
         return ARGUMENT_CATEGORY.NON_CLASSE

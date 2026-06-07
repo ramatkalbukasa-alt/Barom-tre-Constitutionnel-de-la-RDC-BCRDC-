@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
+from pgvector.django import VectorField, HnswIndex
 
 
 class THEME:
@@ -73,7 +74,8 @@ class ConstitutionArticle(models.Model):
         verbose_name="Mots-clés",
     )
     search_vector = SearchVectorField(null=True, blank=True)
-    embedding = models.JSONField(
+    embedding = VectorField(
+        dimensions=1536,
         null=True,
         blank=True,
         verbose_name="Embedding vectoriel",
@@ -93,6 +95,13 @@ class ConstitutionArticle(models.Model):
         ordering = ["number"]
         indexes = [
             GinIndex(fields=["search_vector"], name="article_search_vector_idx"),
+            HnswIndex(
+                name="article_embedding_hnsw",
+                fields=["embedding"],
+                m=16,
+                ef_construction=64,
+                opclasses=["vector_cosine_ops"],
+            ),
         ]
 
     def __str__(self):

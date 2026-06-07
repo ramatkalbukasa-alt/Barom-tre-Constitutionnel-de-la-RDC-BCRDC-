@@ -54,6 +54,19 @@
           <p class="text-xs font-black uppercase tracking-[0.2em] text-[#F0C020] mb-1">Étape 2</p>
           <h1 class="font-black text-2xl uppercase tracking-tight">Votre code SMS</h1>
         </div>
+
+        {% if dev_otp_code %}
+        <div class="mb-5 p-4 border-2 border-[#F0C020] bg-[#F0C020]/15" role="status" aria-live="polite">
+          <p class="text-xs font-black uppercase tracking-wide text-[#121212]/70 mb-2">
+            Mode test — code de verification
+          </p>
+          <p class="font-black text-4xl tracking-[0.5em] text-center text-[#121212]">{{ dev_otp_code }}</p>
+          <p class="text-xs text-[#121212]/55 mt-2 text-center leading-relaxed">
+            Mode demonstration : le code s'affiche ici au lieu d'etre envoye par SMS.
+          </p>
+        </div>
+        {% endif %}
+
         <form method="post" novalidate x-data="{ loading: false }" @submit="loading = true">
           {% csrf_token %}
           <div class="mb-5">

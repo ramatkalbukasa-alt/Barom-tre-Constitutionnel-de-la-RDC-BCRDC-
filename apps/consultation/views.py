@@ -1,12 +1,24 @@
 import json
+import logging
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse
 from apps.constitution.models import ConstitutionArticle
 from .forms import VoteForm
-from .models import Vote, VOTE_CHOICE
-from .services import compute_stats, get_or_refresh_snapshot
+from .models import Vote, VoteStatSnapshot, VOTE_CHOICE
+from .services import compute_stats, get_or_refresh_snapshot, snapshot_to_stats
+
+logger = logging.getLogger(__name__)
+
+
+def _enqueue_argument_classification(vote_id: int) -> None:
+    """Send the justification to the AI classifier in the background.
+    Never let a broker/worker outage break the vote submission."""
+    try:
+        from apps.ai_engine.tasks import classify_vote_argument_task
+        classify_vote_argument_task.delay(vote_id)
+    except Exception as exc:  # pragma: no cover - depends on broker availability
+        logger.warning("Could not enqueue argument classification for vote %s: %s", vote_id, exc)
 
 
 def _get_session_user(request):
@@ -48,7 +60,10 @@ def vote(request):
             user.has_voted = True
             user.save(update_fields=["has_voted"])
 
+            # Keep the cached stats fresh (cheap, no worker required) and send
+            # the justification off for AI categorisation in the background.
             get_or_refresh_snapshot()
+            _enqueue_argument_classification(vote_obj.pk)
 
             return redirect("consultation:thank_you")
     else:
@@ -69,12 +84,19 @@ def thank_you(request):
     return render(request, "consultation/thank_you.html", {"stats": stats, "user": user})
 
 
+def _read_stats() -> dict:
+    """Serve the cached snapshot; fall back to a live computation only when no
+    snapshot exists yet (e.g. before the first vote)."""
+    snapshot = VoteStatSnapshot.objects.filter(pk=1).first()
+    if snapshot and snapshot.total_votes:
+        return snapshot_to_stats(snapshot)
+    return compute_stats()
+
+
 def dashboard(request):
-    snapshot = get_or_refresh_snapshot()
-    stats = compute_stats()
+    stats = _read_stats()
     recent_votes = Vote.objects.select_related("user").order_by("-created_at")[:10]
     return render(request, "consultation/dashboard.html", {
-        "snapshot": snapshot,
         "stats": stats,
         "recent_votes": recent_votes,
         "stats_json": json.dumps(stats),
@@ -83,5 +105,4 @@ def dashboard(request):
 
 
 def dashboard_stats_htmx(request):
-    stats = compute_stats()
-    return render(request, "consultation/partials/hero_stats.html", {"stats": stats})
+    return render(request, "consultation/partials/hero_stats.html", {"stats": _read_stats()})

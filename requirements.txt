@@ -14,6 +14,11 @@ pdfplumber==0.11.4
 
 # AI
 openai==1.35.0
+# openai 1.35.0 passes `proxies=` to httpx, which httpx>=0.28 removed.
+# Pin httpx to the last 0.27.x release to keep them compatible.
+httpx==0.27.2
+# Fallback gratuit lorsque l'API OpenAI echoue ou n'est pas configuree.
+google-generativeai==0.7.2
 
 # Async / Queue
 celery==5.4.0

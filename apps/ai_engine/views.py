@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
+from django_ratelimit.decorators import ratelimit
 from .rag import ask_constitution
 from .models import AIQuery
 
@@ -19,8 +20,15 @@ def ask_view(request):
     return render(request, "ai_engine/ask.html", {"faq_questions": FAQ_QUESTIONS})
 
 
+@ratelimit(key="ip", rate="15/h", method="POST", block=False)
+@ratelimit(key="ip", rate="3/m", method="POST", block=False)
 @require_http_methods(["POST"])
 def ask_htmx(request):  # CSRF handled via {% csrf_token %} in form body
+    if getattr(request, "limited", False):
+        return render(request, "ai_engine/partials/answer.html", {
+            "error": "Vous avez atteint la limite de questions. Veuillez réessayer plus tard."
+        })
+
     question = request.POST.get("question", "").strip()
     language = request.POST.get("language", "fr")
 

@@ -72,8 +72,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# PostgreSQL is required (the app relies on django.contrib.postgres features:
+# full-text search vectors, GIN indexes, JSON aggregation). No SQLite fallback.
 DATABASES = {
-    "default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3")
+    "default": env.db("DATABASE_URL"),
 }
 
 AUTH_USER_MODEL = "users.CitizenUser"
@@ -116,6 +118,15 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
+# Periodically rebuild the stats snapshot so that AI argument categories
+# (computed asynchronously after each vote) are reflected in the dashboard.
+CELERY_BEAT_SCHEDULE = {
+    "refresh-vote-stats-snapshot": {
+        "task": "apps.ai_engine.tasks.refresh_stats_snapshot_task",
+        "schedule": 300.0,
+    },
+}
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticatedOrReadOnly"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -125,13 +136,54 @@ REST_FRAMEWORK = {
 OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
 OPENAI_EMBED_MODEL = "text-embedding-3-small"
 OPENAI_CHAT_MODEL = "gpt-4o-mini"
+OPENAI_TIMEOUT = env.float("OPENAI_TIMEOUT", default=20.0)
+
+# Gemini : fallback gratuit utilise lorsque l'appel OpenAI echoue (quota,
+# cle absente, panne reseau). gemini-2.5-flash dispose d'un palier gratuit.
+GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
+GEMINI_CHAT_MODEL = env("GEMINI_CHAT_MODEL", default="gemini-2.5-flash")
 
 OTP_EXPIRY_MINUTES = env("OTP_EXPIRY_MINUTES")
 OTP_MAX_ATTEMPTS = env("OTP_MAX_ATTEMPTS")
+OTP_RESEND_COOLDOWN_SECONDS = env.int("OTP_RESEND_COOLDOWN_SECONDS", default=60)
 
-AT_USERNAME = env("AT_USERNAME", default="")
-AT_API_KEY = env("AT_API_KEY", default="")
-AT_SENDER_ID = env("AT_SENDER_ID", default="BCRDC")
+# Server-side pepper for phone-number hashing (HMAC-SHA256). Falls back to
+# SECRET_KEY so the app still works if the variable is not set, but a dedicated
+# value is strongly recommended in production.
+PHONE_HASH_PEPPER = env("PHONE_HASH_PEPPER", default="") or SECRET_KEY
+
+# django-ratelimit
+RATELIMIT_USE_CACHE = "default"
+RATELIMIT_ENABLE = env.bool("RATELIMIT_ENABLE", default=True)
+
+# SMS : mode mock uniquement. Le code OTP est affiché sur l'interface web de
+# vérification, aucun SMS réel n'est envoyé (pas de fournisseur externe).
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{levelname}] {asctime} {name}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": env("LOG_LEVEL", default="INFO"),
+    },
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+        "apps": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}
 
 JAZZMIN_SETTINGS = {
     "site_title": "BCRDC Admin",

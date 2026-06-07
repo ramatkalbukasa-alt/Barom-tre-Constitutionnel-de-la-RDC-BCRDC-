@@ -1,6 +1,22 @@
 from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
+from django.contrib.postgres.search import SearchQuery, SearchRank
 from .models import ConstitutionArticle, THEME
+
+
+def _apply_search(qs, query: str):
+    """PostgreSQL full-text search (French config), ranked by relevance.
+    Uses the GIN-indexed `search_vector` column. Pure-digit queries match an
+    article number directly."""
+    if not query:
+        return qs
+    if query.isdigit():
+        return qs.filter(number=int(query))
+    search = SearchQuery(query, config="french")
+    return (
+        qs.filter(search_vector=search)
+        .annotate(rank=SearchRank("search_vector", search))
+        .order_by("-rank")
+    )
 
 
 def article_list(request):
@@ -11,12 +27,7 @@ def article_list(request):
     if theme:
         articles = articles.filter(theme=theme)
 
-    if query:
-        articles = articles.filter(
-            Q(title__icontains=query)
-            | Q(content__icontains=query)
-            | Q(number__icontains=query)
-        )
+    articles = _apply_search(articles, query)
 
     themes = THEME.CHOICES
     context = {
@@ -51,11 +62,7 @@ def article_search_htmx(request):
     if theme:
         articles = articles.filter(theme=theme)
 
-    if query:
-        articles = articles.filter(
-            Q(title__icontains=query)
-            | Q(content__icontains=query)
-        )
+    articles = _apply_search(articles, query)
 
     return render(request, "constitution/partials/article_results.html", {
         "articles": articles[:30],

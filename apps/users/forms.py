@@ -16,11 +16,13 @@ class PhoneRegistrationForm(forms.Form):
     )
 
     def clean_phone_number(self):
+        from .services import normalize_phone_e164
+
         phone = self.cleaned_data["phone_number"]
         digits = re.sub(r"\D", "", phone)
         if len(digits) < 9 or len(digits) > 15:
             raise forms.ValidationError("Numéro de téléphone invalide.")
-        return phone
+        return normalize_phone_e164(phone)
 
 
 class OTPVerifyForm(forms.Form):
