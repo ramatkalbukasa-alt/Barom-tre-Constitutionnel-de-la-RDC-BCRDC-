@@ -12,7 +12,7 @@ databases:
     databaseName: bcrdc_db
     user: bcrdc_user
     plan: free
-    postgresMajorVersion: "16"
+    postgresMajorVersion: 16
 
 services:
   # ----------------------------------------------------------------------------
@@ -21,8 +21,7 @@ services:
   - type: redis
     name: bcrdc-redis
     plan: free
-    ipAllowList: []          # accessible uniquement par les services internes
-    maxmemoryPolicy: noeviction
+    ipAllowList: []
 
   # ----------------------------------------------------------------------------
   # Application web Django
